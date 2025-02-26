@@ -1,0 +1,5 @@
+tree = (-1, 0)
+bank = (4, 1)
+copper = (2, 0)
+fish = (4, 2)
+sunflower = (2, 2)
