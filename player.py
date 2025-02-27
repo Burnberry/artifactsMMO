@@ -1,6 +1,7 @@
 import requests, threading
 from time import sleep
 
+from data.items import Item
 from helpers import *
 import positions as p
 
@@ -32,6 +33,47 @@ class Player:
     def script_mine_copper(self):
         self.gather_loop(p.copper)
 
+    def craft_loop(self, item, location, quantity=2**32):
+        # todo improve to handle more recipes + level/location checks
+        bank_data = self.get_bank_data()
+        level, skill, materials = item.craft
+        mat_qty = sum([qty for mat, qty in materials])
+        mats = {mat: (bank_data.get(mat, 0), qty) for (mat, qty) in materials}
+        for mat, (stock, qty) in mats.items():
+            quantity = min(quantity, stock//qty)
+        self.deposit_all()
+
+        while quantity > 0:
+            qty_to_craft = min(quantity, self.inventory_max_items//mat_qty)
+            print("crafting: %s, batch: %s, quantity: %s" % (item.name, qty_to_craft, quantity))
+            for mat, (stock, qty) in mats.items():
+                self.withdraw(mat, qty*qty_to_craft)
+            self.move(*location)
+            self.craft(item, qty_to_craft)
+            quantity -= qty_to_craft
+            self.deposit_all()
+
+    def equip(self, item, quantity=1, slot=None):
+        slot = slot or item.type
+        if getattr(self, "%s_slot" % slot):
+            self.unequip(slot)
+        self.action("action/equip", {'code': item.code, 'slot': slot, 'quantity': quantity})
+
+    def unequip(self, slot, quantity=1):
+        self.action("action/unequip", {'slot': slot, 'quantity': quantity})
+
+    def use(self, item, quantity=1):
+        self.action("action/use", {'code': item.code, 'quantity': quantity})
+
+    def fight(self):
+        self.action("action/fight")
+
+    def withdraw(self, item, quantity=1):
+        self.action("action/bank/withdraw", {'code': item.code, 'quantity': quantity})
+
+    def craft(self, item, quantity=1):
+        self.action("action/crafting", {'code': item.code, 'quantity': quantity})
+
     def gather_loop(self, location):
         while self.auto:
             if self.inventory_count >= self.inventory_max_items:
@@ -41,7 +83,7 @@ class Player:
 
     def gather(self, position):
         self.move(*position)
-        self.post("action/gathering")
+        self.action("action/gathering")
 
     def deposit_all(self):
         items = []
@@ -55,18 +97,39 @@ class Player:
 
     def deposit(self, item, quantity):
         self.move(*p.bank)
-        self.post("action/bank/deposit", {'code': item, 'quantity': quantity})
+        self.action("action/bank/deposit", {'code': item, 'quantity': quantity})
 
     def move(self, x, y):
         if self.x != x or self.y != y:
-            self.post("action/move", {'x': x, 'y': y})
+            self.action("action/move", {'x': x, 'y': y})
 
-    def post(self, action, data=None):
+    def action(self, path, data=None):
         sleep(self.cooldown)
-        self.response = requests.post(self.base_path+action, json=data, headers=headers)
+        self.response = requests.post(self.base_path+path, json=data, headers=headers)
+        if self.response.status_code != 200:
+            print(self.name, path, data, self.response.json())
         data = self.response.json()['data']
         if 'character' in data:
             self.set_player_data(data['character'])
+
+    @staticmethod
+    def get_request(path, data=None):
+        if not data:
+            data = {}
+        return requests.get(url + path, headers=headers, params=data)
+
+    @staticmethod
+    def get_all_data(path):
+        data = []
+        page, pages = 0, 1
+        while page < pages:
+            page += 1
+            sleep(0.2)
+            response = Player.get_request(path, {'page': page})
+            content = response.json()
+            pages = content['pages']
+            data += content['data']
+        return data
 
     def start_thread(self, script=None, **kwargs):
         if not script:
@@ -79,6 +142,12 @@ class Player:
         if self.thread:
             self.auto = False
             self.thread.join()
+
+    @staticmethod
+    def get_bank_data():
+        data = Player.get_all_data("/my/bank/items")
+        return {Item.get_item(item['code']): item['quantity'] for item in data}
+
 
     @staticmethod
     def add_player(player):
