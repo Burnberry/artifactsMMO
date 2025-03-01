@@ -2,15 +2,20 @@ class TileContent:
     tile_contents: dict[str: 'TileContent'] = {}
 
     def __init__(self, data):
+        from data.monster import Monster
+        from data.npc import Npc
+        from data.resource import Resource
+        from data.tile import Tile
+        self.tiles: list[Tile] = []
+        self.monster: Monster = None
+        self.npc: Npc = None
+        self.resource: Resource = None
+
         self._set_data(data)
         self.add_tile_content(self)
-        self.tiles: list['Tile'] = []
 
     def _set_data(self, data):
         self.__set_data(data)
-        self.monster: 'Monster' = None
-        self.npc: 'Npc' = None
-        self.resource: 'Resource' = None
 
     @staticmethod
     def add_tile_content(monster):
