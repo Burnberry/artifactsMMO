@@ -3,17 +3,17 @@ class Monster:
 
     def __init__(self, data):
         self._set_data(data)
-        self.add_resource(self)
+        self.add_monster(self)
 
     def _set_data(self, data):
         self.__set_data(data)
 
     @staticmethod
-    def add_resource(resource):
-        Monster.monsters[resource.code] = resource
+    def add_monster(monster):
+        Monster.monsters[monster.code] = monster
 
     @staticmethod
-    def get_resource(code):
+    def get_monster(code):
         return Monster.monsters[code]
 
     def __repr__(self):

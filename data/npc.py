@@ -3,17 +3,17 @@ class Npc:
 
     def __init__(self, data):
         self._set_data(data)
-        self.add_resource(self)
+        self.add_npc(self)
 
     def _set_data(self, data):
         self.__set_data(data)
 
     @staticmethod
-    def add_resource(resource):
-        Npc.npcs[resource.code] = resource
+    def add_npc(npc):
+        Npc.npcs[npc.code] = npc
 
     @staticmethod
-    def get_resource(code):
+    def get_npc(code):
         return Npc.npcs[code]
 
     def __repr__(self):
