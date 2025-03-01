@@ -7,47 +7,52 @@ from data.tile_grid import Grid
 from data.drop import Drop
 from data.tasks import Tasks, Task
 
-"""Map item crafts to items"""
-# todo should be craft class
-for code, item in Items.items.items():
-    if not item.craft:
-        continue
-    materials = [(Items.get_item(mat['code']), mat['quantity']) for mat in item.craft['items']]
-    item.craft = (item.craft['level'], item.craft['skill'], materials)
 
-"""Map drops to items"""
-for drop in Drop.drops:
-    drop.item = Items.get_item(drop.code)
+def manage_data():
+    """Map item crafts to items"""
+    # todo should be craft class
+    for code, item in Items.items.items():
+        if not item.craft:
+            continue
+        materials = [(Items.get_item(mat['code']), mat['quantity']) for mat in item.craft['items']]
+        item.craft = (item.craft['level'], item.craft['skill'], materials)
 
-"""Set main item on resources"""
-for _, resource in Resources.resources.items():
-    resource.set_main_item()
+    """Map drops to items"""
+    for drop in Drop.drops:
+        drop.item = Items.get_item(drop.code)
 
-"""Create tile contents and map tiles lists"""
-for key, content in Grid.tile_contents.items():
-    if content.type == 'monster':
-        content.monster = Monsters.monsters.get(content.code, None)
-        content.monster.tile_content = content
-    elif content.type == 'resource':
-        content.resource = Resources.resources.get(content.code, None)
-        content.resource.tile_content = content
-    elif content.type == 'npc':
-        content.npc = Npcs.npcs.get(content.code, None)
-        content.npc.tile_content = content
+    """Set main item on resources"""
+    for _, resource in Resources.resources.items():
+        resource.set_main_item()
 
-"""Set tiles in tile_content & resource"""
-for _, tile in Grid.tiles.items():
-    if not tile.content:
-        continue
-    code = tile.content['code']
-    content = TileContent.get_tile_content(code)
-    content.tiles.append(tile)
-    if content.resource:
-        content.resource.tiles.append(tile)
+    """Create tile contents and map tiles lists"""
+    for key, content in Grid.tile_contents.items():
+        if content.type == 'monster':
+            content.monster = Monsters.monsters.get(content.code, None)
+            content.monster.tile_content = content
+        elif content.type == 'resource':
+            content.resource = Resources.resources.get(content.code, None)
+            content.resource.tile_content = content
+        elif content.type == 'npc':
+            content.npc = Npcs.npcs.get(content.code, None)
+            content.npc.tile_content = content
 
-"""Map items and monsters on Task"""
-for code, task in Tasks.tasks.items():
-    if task.type == 'items':
-        task.item = Items.get_item(code)
-    elif task.type == 'monsters':
-        task.monster = Monsters.get_monster(code)
+    """Set tiles in tile_content & resource"""
+    for _, tile in Grid.tiles.items():
+        if not tile.content:
+            continue
+        code = tile.content['code']
+        content = TileContent.get_tile_content(code)
+        content.tiles.append(tile)
+        if content.resource:
+            content.resource.tiles.append(tile)
+
+    """Map items and monsters on Task"""
+    for code, task in Tasks.tasks.items():
+        if task.type == 'items':
+            task.item = Items.get_item(code)
+        elif task.type == 'monsters':
+            task.monster = Monsters.get_monster(code)
+
+
+manage_data()
