@@ -2,7 +2,8 @@ class Item:
     items = {}
 
     def __init__(self, data):
-        self.resource: 'Resource' = None
+        from data.resource import Resource
+        self.resource: Resource = None
         self.set_data(data)
         self.add_item(self)
 

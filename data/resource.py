@@ -5,8 +5,12 @@ class Resource:
     resources = {}
 
     def __init__(self, data):
-        self.main_item: 'Item' = None
-        self.tiles: list['Tile'] = []
+        from data.item import Item
+        from data.tile_content import TileContent
+        from data.tile import Tile
+        self.main_item: Item = None
+        self.tile_content: TileContent = None
+        self.tiles: list[Tile] = []
 
         self._set_data(data)
         self.add_resource(self)

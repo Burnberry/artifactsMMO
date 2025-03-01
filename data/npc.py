@@ -2,6 +2,9 @@ class Npc:
     npcs = {}
 
     def __init__(self, data):
+        from data.tile_content import TileContent
+        self.tile_content: TileContent = None
+
         self._set_data(data)
         self.add_npc(self)
 

@@ -5,6 +5,10 @@ from data.monster_data import monster_data
 class Monsters:
     monsters = Monster.monsters
 
+    @staticmethod
+    def get_monster(code):
+        return Monsters.monsters.get(code, None)
+
     chicken = Monster(monster_data['chicken'])
     yellow_slime = Monster(monster_data['yellow_slime'])
     green_slime = Monster(monster_data['green_slime'])
