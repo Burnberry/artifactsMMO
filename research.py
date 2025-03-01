@@ -26,7 +26,10 @@ class Search:
             keys = [keys]
         new_data = {}
         for values in data:
-            key = tuple([values[k] for k in keys])
+            if len(keys) == 1:
+                key = values[keys[0]]
+            else:
+                key = tuple([values[k] for k in keys])
             new_data[key] = values
         if len(keys) == 1:
             print(json.dumps(new_data, indent=4).replace("null", "None").replace("true", "True").replace("false", "False"))
