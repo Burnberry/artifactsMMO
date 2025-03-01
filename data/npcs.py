@@ -3,6 +3,8 @@ from data.npc_data import npc_data
 
 
 class Npcs:
+    npcs = Npc.npcs
+
     fish_merchant = Npc(npc_data['fish_merchant'])
     gemstone_merchant = Npc(npc_data['gemstone_merchant'])
     herbal_merchant = Npc(npc_data['herbal_merchant'])

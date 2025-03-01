@@ -3,6 +3,8 @@ from data.resource_data import resource_data
 
 
 class Resources:
+    resources = Resource.resources
+
     ash_tree = Resource(resource_data['ash_tree'])
     gudgeon_fishing_spot = Resource(resource_data['gudgeon_fishing_spot'])
     copper_rocks = Resource(resource_data['copper_rocks'])

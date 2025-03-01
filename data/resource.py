@@ -1,12 +1,26 @@
+from data.drop import Drop
+
+
 class Resource:
     resources = {}
 
     def __init__(self, data):
+        self.main_item: 'Item' = None
+        self.tiles: list['Tile'] = []
+
         self._set_data(data)
         self.add_resource(self)
 
     def _set_data(self, data):
         self.__set_data(data)
+        self.drops = [Drop(drop) for drop in self.drops or []]
+
+    def set_main_item(self):
+        for drop in self.drops:
+            if drop.rate == 1:
+                self.main_item = drop.item
+                drop.item.resource = self
+                return
 
     @staticmethod
     def add_resource(resource):

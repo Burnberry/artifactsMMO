@@ -1,3 +1,6 @@
+from data.drop import Drop
+
+
 class Monster:
     monsters = {}
 
@@ -7,6 +10,7 @@ class Monster:
 
     def _set_data(self, data):
         self.__set_data(data)
+        self.drops = [Drop(drop) for drop in self.drops or []]
 
     @staticmethod
     def add_monster(monster):
