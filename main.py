@@ -6,7 +6,7 @@ from helpers import *
 from player import Player
 from characters import *
 
-players = [Noppe(), Rubius(), Leandra(), Hella(), Pebbleboy()]
+players = [Noppe(), Rubius(), Pebbleboy(), Leandra(), Hekate()]
 for player in players:
     player.start_thread()
 

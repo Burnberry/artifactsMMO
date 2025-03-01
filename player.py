@@ -1,4 +1,4 @@
-import requests, threading
+import requests, threading, datetime
 from time import sleep
 
 from data.data_manager import *
@@ -17,6 +17,9 @@ class Player:
         self.get_character_data()
         self.auto = False
         self.thread = None
+        self.server_drift = None
+        self.last_server_sync = None
+        self.sync_server()
 
     def script_main(self):
         print("No main script made for", self.name)
@@ -46,14 +49,11 @@ class Player:
         level, skill, materials = item.craft
         mat_qty = sum([qty for mat, qty in materials])
         mats = {mat: (bank_data.get(mat, 0), qty) for (mat, qty) in materials}
-        print(bank_data)
-        print(mats)
         for mat, (stock, qty) in mats.items():
-            print(quantity, stock, qty)
             quantity = min(quantity, stock//qty)
-        self.deposit_all()
 
         while quantity > 0:
+            self.deposit_all()
             qty_to_craft = min(quantity, self.inventory_max_items//mat_qty)
             print("crafting: %s, batch: %s, quantity: %s" % (item.name, qty_to_craft, quantity))
             for mat, (stock, qty) in mats.items():
@@ -61,7 +61,15 @@ class Player:
             self.move(*location)
             self.craft(item, qty_to_craft)
             quantity -= qty_to_craft
-            self.deposit_all()
+
+    def craft_one(self, item, location, equip=False):
+        level, skill, materials = item.craft
+        for mat, qty in materials:
+            self.withdraw(mat, qty)
+        self.move(*location)
+        self.craft(item)
+        if equip:
+            self.equip(item)
 
     def equip(self, item, quantity=1, slot=None):
         slot = slot or item.type
@@ -79,6 +87,7 @@ class Player:
         self.action("action/fight")
 
     def withdraw(self, item, quantity=1):
+        self.move(*p.bank)
         self.action("action/bank/withdraw", {'code': item.code, 'quantity': quantity})
 
     def recycle(self, item, quantity=1):
@@ -86,6 +95,16 @@ class Player:
 
     def craft(self, item, quantity=1):
         self.action("action/crafting", {'code': item.code, 'quantity': quantity})
+
+    def get_task(self):
+        if not self.task:
+            self.move(1, 2)
+            self.action("action/task/new")
+
+    def complete_task(self):
+        self.move(1, 2)
+        self.action("action/task/complete")
+        self.get_task()
 
     def gather_loop(self, skill):
         while self.auto:
@@ -159,13 +178,24 @@ class Player:
         return tile
 
     def action(self, path, data=None):
-        sleep(self.cooldown)
+        self.sync_server()
+        cooldown = self.get_cooldown_time()
+        if cooldown > 0:
+            sleep(cooldown)
         self.response = requests.post(self.base_path+path, json=data, headers=headers)
         if self.response.status_code != 200:
             print(self.name, path, data, self.response.json())
         data = self.response.json()['data']
         if 'character' in data:
             self.set_player_data(data['character'])
+
+    def sync_server(self):
+        if not self.last_server_sync:
+            response = requests.get(url, headers=headers)
+            time = datetime.datetime.now()
+            server_time = to_datetime(response.json()['data']['server_time'])
+            self.server_drift = server_time - time
+            self.last_server_sync = time
 
     @staticmethod
     def get_request(path, data=None):
@@ -240,6 +270,15 @@ class Player:
         response = requests.get(url + "characters/%s" % self.name)
         player_data = response.json()['data']
         self.set_player_data(player_data)
+
+    def get_cooldown_time(self):
+        simple = False
+        if simple:
+            cooldown = self.cooldown
+        else:
+            cooldown_time = to_datetime(self.cooldown_expiration) - (datetime.datetime.now() + self.server_drift)
+            cooldown = cooldown_time.days*24*60*60 + cooldown_time.seconds + cooldown_time.microseconds/10**6
+        return cooldown
 
     def set_player_data(self, player_data):
         self._set_player_data(player_data)

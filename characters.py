@@ -5,26 +5,22 @@ class Noppe(Player):
     def __init__(self):
         super().__init__("Noppe")
 
-    def fight_loop(self):
-        heal_items = 90
+    def fight_loop(self, n=-1):
+        heal_items = 50
         self.move(0, 1)
-        i = 0
-        while heal_items > 0 and i < 27:
-            i += 1
+        while heal_items > 0 and n != 0:
             if self.max_hp - self.hp >= 75:
                 self.use(Items.cooked_gudgeon)
             else:
+                n -= 1
                 self.fight()
         self.script_main()
 
     def script_main(self):
+        self.auto = True
         if not self.task:
             self.get_task()
         self.gather_loop(Resources.copper_rocks.skill)
-        self.craft_loop(Items.ash_plank, (-2, -3), 6)
-        self.craft_one(Items.copper_helmet, (3, 1), True)
-        self.craft_one(Items.copper_boots, (3, 1), True)
-        self.craft_one(Items.wooden_shield, (3, 1), True)
 
 
 class Rubius(Player):
