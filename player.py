@@ -1,7 +1,7 @@
 import requests, threading
 from time import sleep
 
-from data.items import Item
+from data.data_manager import *
 from helpers import *
 import positions as p
 
@@ -22,16 +22,23 @@ class Player:
         print("No main script made for", self.name)
 
     def script_gather_alchemy(self):
-        self.gather_loop(p.sunflower)
+        self.gather_loop_deprecated(p.sunflower)
 
     def script_gather_fish(self):
-        self.gather_loop(p.fish)
+        self.gather_loop_deprecated(p.fish)
 
     def script_gather_wood(self):
-        self.gather_loop(p.tree)
+        self.gather_loop_deprecated(p.tree)
 
     def script_mine_copper(self):
-        self.gather_loop(p.copper)
+        self.gather_loop_deprecated(p.copper)
+
+    def recycle_loop(self, item, location, quantity=1):
+        # todo improve
+        self.deposit_all()
+        self.withdraw(item, quantity)
+        self.move(*location)
+        self.recycle(item, quantity)
 
     def craft_loop(self, item, location, quantity=2**32):
         # todo improve to handle more recipes + level/location checks
@@ -39,7 +46,10 @@ class Player:
         level, skill, materials = item.craft
         mat_qty = sum([qty for mat, qty in materials])
         mats = {mat: (bank_data.get(mat, 0), qty) for (mat, qty) in materials}
+        print(bank_data)
+        print(mats)
         for mat, (stock, qty) in mats.items():
+            print(quantity, stock, qty)
             quantity = min(quantity, stock//qty)
         self.deposit_all()
 
@@ -71,17 +81,43 @@ class Player:
     def withdraw(self, item, quantity=1):
         self.action("action/bank/withdraw", {'code': item.code, 'quantity': quantity})
 
+    def recycle(self, item, quantity=1):
+        self.action("action/recycling", {'code': item.code, 'quantity': quantity})
+
     def craft(self, item, quantity=1):
         self.action("action/crafting", {'code': item.code, 'quantity': quantity})
 
-    def gather_loop(self, location):
+    def gather_loop(self, skill):
         while self.auto:
             if self.inventory_count >= self.inventory_max_items:
                 self.deposit_all()
             else:
-                self.gather(location)
+                self.gather(self.get_highest_resource(skill))
 
-    def gather(self, position):
+    def get_highest_resource(self, skill):
+        level = self.get_level(skill)
+        dx, best_resource = level+100, None
+        for _, resource in Resources.resources.items():
+            if resource.skill == skill and 0 <= level - resource.level < dx:
+                dx = level - resource.level
+                best_resource = resource
+        return best_resource
+
+    def get_level(self, skill):
+        return getattr(self, skill+"_level")
+
+    def gather_loop_deprecated(self, location):
+        while self.auto:
+            if self.inventory_count >= self.inventory_max_items:
+                self.deposit_all()
+            else:
+                self.gather_deprecated(location)
+
+    def gather(self, resource):
+        self.move(resource=resource)
+        self.action("action/gathering")
+
+    def gather_deprecated(self, position):
         self.move(*position)
         self.action("action/gathering")
 
@@ -99,9 +135,28 @@ class Player:
         self.move(*p.bank)
         self.action("action/bank/deposit", {'code': item, 'quantity': quantity})
 
-    def move(self, x, y):
+    def move(self, x=None, y=None, resource=None):
+        if x is None or y is None:
+            x, y = self.x, self.y
+        if resource and resource.tiles:
+            tile = self.get_closest_tile(resource.tiles)
+            x, y = tile.x, tile.y
+
+        self._move(x, y)
+
+    def _move(self, x, y):
         if self.x != x or self.y != y:
             self.action("action/move", {'x': x, 'y': y})
+
+    def get_closest_tile(self, tiles):
+        x, y = self.x, self.y
+        tile = None
+        distance = 2**31
+        for tile in tiles:
+            d = abs(tile.x - x) + abs(tile.y - y)
+            if d < distance:
+                tile, distance = tile, d
+        return tile
 
     def action(self, path, data=None):
         sleep(self.cooldown)
@@ -146,7 +201,7 @@ class Player:
     @staticmethod
     def get_bank_data():
         data = Player.get_all_data("/my/bank/items")
-        return {Item.get_item(item['code']): item['quantity'] for item in data}
+        return {Items.get_item(item['code']): item['quantity'] for item in data}
 
 
     @staticmethod
