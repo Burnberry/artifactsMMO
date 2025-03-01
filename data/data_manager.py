@@ -39,4 +39,4 @@ for _, tile in Grid.tiles.items():
     content = TileContent.get_tile_content(code)
     content.tiles.append(tile)
     if content.resource:
-        content.resource.append(tile)
+        content.resource.tiles.append(tile)
