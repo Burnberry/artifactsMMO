@@ -8,6 +8,7 @@ import positions as p
 
 class Player:
     players = set()
+    player_lock = threading.Lock()
 
     def __init__(self, name):
         Player.add_player(self)
@@ -17,6 +18,7 @@ class Player:
         self.get_character_data()
         self.auto = False
         self.thread = None
+        self.has_lock = False
         self.server_drift = None
         self.last_server_sync = None
         self.action_time = datetime.datetime.now()
@@ -195,6 +197,8 @@ class Player:
 
     def action(self, path, data=None):
         self.sync_server()
+
+        self.lock_release()
         cooldown = self.get_cooldown_time()
         if cooldown > 0:
             sleep(cooldown)
@@ -203,6 +207,8 @@ class Player:
             print(self.name, path, data, self.response.json())
         if self.name == "Noppe" and False:
             self.log_time(path)
+        self.lock_acquire()
+
         data = self.response.json()['data']
         if 'character' in data:
             self.set_player_data(data['character'])
@@ -250,6 +256,15 @@ class Player:
         if self.thread:
             self.auto = False
             self.thread.join()
+
+    def lock_acquire(self):
+        self.player_lock.acquire()
+        self.has_lock = True
+
+    def lock_release(self):
+        if self.has_lock:
+            self.player_lock.release()
+            self.has_lock = False
 
     @staticmethod
     def get_bank_data():
