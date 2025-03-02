@@ -1,3 +1,4 @@
+from data.Craft import Craft
 from data.items import Items, Item
 from data.monsters import Monsters, Monster
 from data.resources import Resources, Resource
@@ -10,12 +11,11 @@ from data.tasks import Tasks, Task
 
 def manage_data():
     """Map item crafts to items"""
-    # todo should be craft class
     for code, item in Items.items.items():
         if not item.craft:
             continue
         materials = [(Items.get_item(mat['code']), mat['quantity']) for mat in item.craft['items']]
-        item.craft = (item.craft['level'], item.craft['skill'], materials)
+        item.craft = Craft(item.craft, item, materials)
 
     """Map drops to items"""
     for drop in Drop.drops:
