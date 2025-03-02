@@ -63,10 +63,6 @@ tile_content_data = {
         "type": "resource",
         "code": "copper_rocks"
     },
-    "bandit_lizard": {
-        "type": "monster",
-        "code": "bandit_lizard"
-    },
     "chicken": {
         "type": "monster",
         "code": "chicken"
@@ -138,10 +134,6 @@ tile_content_data = {
     "birch_tree": {
         "type": "resource",
         "code": "birch_tree"
-    },
-    "efreet_sultan": {
-        "type": "monster",
-        "code": "efreet_sultan"
     },
     "coal_rocks": {
         "type": "resource",
@@ -230,5 +222,71 @@ tile_content_data = {
     "nettle": {
         "type": "resource",
         "code": "nettle"
+    },
+    # event content
+    "demon": {
+        "type": "monster",
+        "code": "demon",
+        "is_event": True
+    },
+    "bandit_lizard": {
+        "type": "monster",
+        "code": "bandit_lizard",
+        "is_event": True
+    },
+    "cultist_emperor": {
+        "type": "monster",
+        "code": "cultist_emperor",
+        "is_event": True
+    },
+    "strange_rocks": {
+        "type": "resource",
+        "code": "strange_rocks",
+        "is_event": True
+    },
+    "magic_tree": {
+        "type": "resource",
+        "code": "magic_tree",
+        "is_event": True
+    },
+    "rosenblood": {
+        "type": "monster",
+        "code": "rosenblood",
+        "is_event": True
+    },
+    "efreet_sultan": {
+        "type": "monster",
+        "code": "efreet_sultan",
+        "is_event": True
+    },
+    "cursed_tree": {
+        "type": "monster",
+        "code": "cursed_tree",
+        "is_event": True
+    },
+    "fish_merchant": {
+        "type": "npc",
+        "code": "fish_merchant",
+        "is_event": True
+    },
+    "timber_merchant": {
+        "type": "npc",
+        "code": "timber_merchant",
+        "is_event": True
+    },
+    "herbal_merchant": {
+        "type": "npc",
+        "code": "herbal_merchant",
+        "is_event": True
+    },
+    "nomadic_merchant": {
+        "type": "npc",
+        "code": "nomadic_merchant",
+        "is_event": True
+    },
+    "gemstone_merchant": {
+        "type": "npc",
+        "code": "gemstone_merchant",
+        "is_event": True
     }
 }

@@ -9,6 +9,7 @@ from data_wrappers.drop import Drop
 from data_wrappers.tasks import Tasks, Task
 from data_wrappers.npc_item import NpcItem
 from data_wrappers.data.task_reward_data import task_reward_data
+from data_wrappers.events import Events, Event
 
 
 def manage_data():
