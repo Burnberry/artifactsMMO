@@ -1,5 +1,5 @@
 from data_wrappers.npc import Npc
-from data_wrappers.npc_data import npc_data
+from data_wrappers.data.npc_data import npc_data
 
 
 class Npcs:

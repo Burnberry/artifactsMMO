@@ -1,5 +1,5 @@
 from data_wrappers.monster import Monster
-from data_wrappers.monster_data import monster_data
+from data_wrappers.data.monster_data import monster_data
 
 
 class Monsters:

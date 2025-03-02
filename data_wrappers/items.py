@@ -1,5 +1,5 @@
 from data_wrappers.item import Item
-from data_wrappers.item_data import item_data
+from data_wrappers.data.item_data import item_data
 
 
 class Items:

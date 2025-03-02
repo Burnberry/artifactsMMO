@@ -1,9 +1,9 @@
 import json
 
 from data_wrappers.tile import Tile
-from data_wrappers.tile_data import tile_data
+from data_wrappers.data.tile_data import tile_data
 from data_wrappers.tile_content import TileContent
-from data_wrappers.tile_content_data import tile_content_data
+from data_wrappers.data.tile_content_data import tile_content_data
 
 
 class Grid:

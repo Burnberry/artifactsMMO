@@ -1,5 +1,5 @@
 from data_wrappers.resource import Resource
-from data_wrappers.resource_data import resource_data
+from data_wrappers.data.resource_data import resource_data
 
 
 class Resources:

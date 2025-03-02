@@ -1,4 +1,4 @@
-from data_wrappers.npc_item_data import npc_item_data
+from data_wrappers.data.npc_item_data import npc_item_data
 
 
 class NpcItem:

@@ -1,4 +1,4 @@
-from data_wrappers.task_data import task_data
+from data_wrappers.data.task_data import task_data
 from data_wrappers.task import Task
 
 

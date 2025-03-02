@@ -1,5 +1,5 @@
 from data_wrappers.effect import Effect
-from data_wrappers.effect_data import effect_data
+from data_wrappers.data.effect_data import effect_data
 
 
 class Effects:
