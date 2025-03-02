@@ -241,7 +241,7 @@ class Player:
             sleep(0.2)
             response = Player.get_request(path, {'page': page})
             content = response.json()
-            pages = content['pages']
+            pages = content.get('pages', 1)
             data += content['data']
         return data
 

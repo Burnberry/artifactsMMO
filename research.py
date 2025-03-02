@@ -13,6 +13,7 @@ class Search:
     _event_data = None  # todo this contains content data
     _task_data = None
     _task_reward_data = None
+    _achievement_data = None
 
     """Helper methods"""
     @staticmethod
@@ -116,3 +117,10 @@ class Search:
             Search._task_reward_data = Player.get_all_data("/tasks/rewards")
 
         return Search._task_reward_data
+
+    @staticmethod
+    def get_achievement_data():
+        if not Search._achievement_data:
+            Search._achievement_data = Player.get_all_data("/achievements")
+
+        return Search._achievement_data
