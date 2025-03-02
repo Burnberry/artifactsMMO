@@ -10,7 +10,7 @@ class Search:
     _monster_data = None
     _effect_data = None
     _map_data = None
-    _event_data = None
+    _event_data = None  # todo this contains content data
     _task_data = None
     _task_reward_data = None
 
