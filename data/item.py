@@ -8,6 +8,7 @@ class Item:
         self.resource: Resource = None
         self.craft: Craft = None
         self.npc_item: NpcItem = None
+        self.drops = None
 
         self.set_data(data)
         self.add_item(self)

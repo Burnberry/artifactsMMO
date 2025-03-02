@@ -1,4 +1,5 @@
 from data.Craft import Craft
+from data.Drops import Drops
 from data.items import Items, Item
 from data.monsters import Monsters, Monster
 from data.resources import Resources, Resource
@@ -8,6 +9,7 @@ from data.tile_grid import Grid
 from data.drop import Drop
 from data.tasks import Tasks, Task
 from data.npc_item import NpcItem
+from data.task_reward_data import task_reward_data
 
 
 def manage_data():
@@ -18,6 +20,9 @@ def manage_data():
         materials = [(Items.get_item(mat['code']), mat['quantity']) for mat in item.craft['items']]
         item.craft = Craft(item.craft, item, materials)
         item.craft.update_material_count()
+
+    """Add task reward data as drop to task coin"""
+    Items.tasks_coin.drops = Drops([vals for vals in task_reward_data.values()], Items.tasks_coin)
 
     """Map drops to items"""
     for drop in Drop.drops:

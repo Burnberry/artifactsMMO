@@ -1,3 +1,4 @@
+from data.Drops import Drops
 from data.drop import Drop
 
 
@@ -17,10 +18,10 @@ class Resource:
 
     def _set_data(self, data):
         self.__set_data(data)
-        self.drops = [Drop(drop) for drop in self.drops or []]
+        self.drops = Drops(self.drops or [], self)
 
     def set_main_item(self):
-        for drop in self.drops:
+        for drop in self.drops.drops:
             if drop.rate == 1:
                 self.main_item = drop.item
                 drop.item.resource = self
