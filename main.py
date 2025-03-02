@@ -7,7 +7,7 @@ from player import Player
 from characters import *
 
 players = [Noppe(), Rubius(), Pebbleboy(), Leandra(), Hekate()]
-for player in players:
+for player in players[1:]:
     player.start_thread()
 
 input("Stop script?")

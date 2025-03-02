@@ -1,13 +1,12 @@
 from data_wrappers.Craft import Craft
-from data_wrappers.Drops import Drops
-from data_wrappers.items import Items
-from data_wrappers.monsters import Monsters
-from data_wrappers.resources import Resources
-from data_wrappers.npcs import Npcs
-from data_wrappers.tile_content import TileContent
-from data_wrappers.tile_grid import Grid
+from data_wrappers.Drops import Drops, Drop
+from data_wrappers.items import Items, Item
+from data_wrappers.monsters import Monsters, Monster
+from data_wrappers.resources import Resources, Resource
+from data_wrappers.npcs import Npcs, Npc
+from data_wrappers.tile_grid import Grid, Tile, TileContent
 from data_wrappers.drop import Drop
-from data_wrappers.tasks import Tasks
+from data_wrappers.tasks import Tasks, Task
 from data_wrappers.npc_item import NpcItem
 from data_wrappers.data.task_reward_data import task_reward_data
 
