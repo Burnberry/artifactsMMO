@@ -4,11 +4,17 @@ class Craft:
     def __init__(self, data, item, materials):
         from data.item import Item
         self.item: Item = item
-        self.materials = materials
+        self.materials: list[(Item, int)] = materials
+        self.material_count = None
 
         self.skill = data.get('skill', None)
         self.level = data.get('level', None)
         self.quantity = data.get('quantity', None)
+
+        self.add_craft(self)
+
+    def update_material_count(self):
+        self.material_count = sum([qty for item, qty in self.materials])
 
     @staticmethod
     def add_craft(craft):

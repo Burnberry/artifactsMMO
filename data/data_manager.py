@@ -16,6 +16,7 @@ def manage_data():
             continue
         materials = [(Items.get_item(mat['code']), mat['quantity']) for mat in item.craft['items']]
         item.craft = Craft(item.craft, item, materials)
+        item.craft.update_material_count()
 
     """Map drops to items"""
     for drop in Drop.drops:

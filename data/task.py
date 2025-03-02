@@ -22,7 +22,7 @@ class Task:
         return Task.tasks[code]
 
     def __repr__(self):
-        return "Task: %s.%s %s/%s - %s lv.%s" % (self.type, self.code, self.min_quantity, self.max_quantity, self.skill, self.level)
+        return "Task: %s.%s %s/%s - %s lv.%s - x%s coins" % (self.type, self.code, self.min_quantity, self.max_quantity, self.skill, self.level, self.rewards['items'][0]['quantity'])
 
     def __set_data(self, data):
         self.code = data.get('code', None)

@@ -1,4 +1,5 @@
 class Drop:
+    # todo should be a list of drops and linked to source
     drops = set()
 
     def __init__(self, vals):

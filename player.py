@@ -24,24 +24,42 @@ class Player:
     def script_main(self):
         print("No main script made for", self.name)
 
-    def script_gather_alchemy(self):
-        self.gather_loop_deprecated(p.sunflower)
-
-    def script_gather_fish(self):
-        self.gather_loop_deprecated(p.fish)
-
-    def script_gather_wood(self):
-        self.gather_loop_deprecated(p.tree)
-
-    def script_mine_copper(self):
-        self.gather_loop_deprecated(p.copper)
-
     def recycle_loop(self, item, location, quantity=1):
         # todo improve
         self.deposit_all()
         self.withdraw(item, quantity)
         self.move(*location)
         self.recycle(item, quantity)
+
+    def craft_items(self, items: list[Item, int]):
+        required_materials = self.get_required_crafting_materials(items)
+        gather_materials = not self.is_carrying_items(required_materials)
+
+        for item, quantity in items:
+            while quantity > 0:
+                qty_to_craft = quantity
+                if gather_materials:
+                    self.deposit_all()
+                    qty_to_craft = self.inventory_max_items//item.craft.material_count
+                    for material, qty in item.craft.materials:
+                        self.withdraw(material, qty*qty_to_craft)
+                tiles = Grid.tile_contents.get(item.craft.skill).tiles
+                self.move(tiles=tiles)
+                self.craft(item, qty_to_craft)
+                quantity -= qty_to_craft
+
+    def get_required_crafting_materials(self, items: list[Item, int]):
+        required_materials = {}
+        for item, qty in items:
+            for material, quantity in item.craft.materials:
+                required_materials[material] = quantity*qty + required_materials.get(material, 0)
+        return required_materials
+
+    def is_carrying_items(self, items: dict):
+        for item, qty in items.items():
+            if self.inventory.get(item, 0) < qty:
+                return False
+        return True
 
     def craft_loop(self, item, location, quantity=2**32):
         # todo improve to handle more recipes + level/location checks
@@ -87,7 +105,7 @@ class Player:
         self.action("action/fight")
 
     def withdraw(self, item, quantity=1):
-        self.move(*p.bank)
+        self.move(Grid.bank.tiles)
         self.action("action/bank/withdraw", {'code': item.code, 'quantity': quantity})
 
     def recycle(self, item, quantity=1):
@@ -96,15 +114,25 @@ class Player:
     def craft(self, item, quantity=1):
         self.action("action/crafting", {'code': item.code, 'quantity': quantity})
 
-    def get_task(self):
+    def get_task(self, code):
+        if code == "items":
+            self.move(tiles=Grid.items.tiles)
+        elif code == "monsters":
+            self.move(tiles=Grid.monsters.tiles)
+        else:
+            print("Invalid task code:", code)
+            return
         if not self.task:
-            self.move(1, 2)
             self.action("action/task/new")
 
+    def turn_in_items(self, item, quantity):
+        self.move(Grid.items.tiles)
+        self.action("action/task/trade", {"code": item.code, "quantity": quantity})
+
     def complete_task(self):
-        self.move(1, 2)
-        self.action("action/task/complete")
-        self.get_task()
+        if self.task:
+            self.get_task(self.task.type)
+            self.action("action/task/complete")
 
     def gather_loop(self, skill):
         while self.auto:
@@ -125,40 +153,25 @@ class Player:
     def get_level(self, skill):
         return getattr(self, skill+"_level")
 
-    def gather_loop_deprecated(self, location):
-        while self.auto:
-            if self.inventory_count >= self.inventory_max_items:
-                self.deposit_all()
-            else:
-                self.gather_deprecated(location)
-
     def gather(self, resource):
         self.move(resource=resource)
         self.action("action/gathering")
 
-    def gather_deprecated(self, position):
-        self.move(*position)
-        self.action("action/gathering")
-
     def deposit_all(self):
-        items = []
-        for slot in self.inventory:
-            code, quantity = slot.get('code'), slot.get('quantity')
-            if code and quantity > 0:
-                items.append((code, quantity))
-
-        for item, quantity in items:
+        for item, quantity in self.inventory.items():
             self.deposit(item, quantity)
 
     def deposit(self, item, quantity):
-        self.move(*p.bank)
-        self.action("action/bank/deposit", {'code': item, 'quantity': quantity})
+        self.move(tiles=Grid.bank.tiles)
+        self.action("action/bank/deposit", {'code': item.code, 'quantity': quantity})
 
-    def move(self, x=None, y=None, resource=None):
+    def move(self, tiles=None, x=None, y=None, resource=None):
         if x is None or y is None:
             x, y = self.x, self.y
         if resource and resource.tiles:
-            tile = self.get_closest_tile(resource.tiles)
+            tiles = resource.tiles
+        if tiles:
+            tile = self.get_closest_tile(tiles)
             x, y = tile.x, tile.y
 
         self._move(x, y)
@@ -169,13 +182,13 @@ class Player:
 
     def get_closest_tile(self, tiles):
         x, y = self.x, self.y
-        tile = None
+        closest_tile = None
         distance = 2**31
         for tile in tiles:
             d = abs(tile.x - x) + abs(tile.y - y)
             if d < distance:
-                tile, distance = tile, d
-        return tile
+                closest_tile, distance = tile, d
+        return closest_tile
 
     def action(self, path, data=None):
         self.sync_server()
@@ -282,7 +295,16 @@ class Player:
 
     def set_player_data(self, player_data):
         self._set_player_data(player_data)
-        self.inventory_count = sum([slot['quantity'] for slot in self.inventory])
+        self.inventory_count = 0
+        inventory = {}
+        for slot in self.inventory:
+            if not slot['code']:
+                continue
+            inventory[Items.get_item(slot['code'])] = slot['quantity']
+            self.inventory_count += slot['quantity']
+        self.inventory = inventory
+        if self.task:
+            self.task = Task.get_task(self.task)
 
     def print_player_attributes(self, player_data):
         # used for _set_player_data

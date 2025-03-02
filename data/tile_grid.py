@@ -8,7 +8,7 @@ from data.tile_content_data import tile_content_data
 
 class Grid:
     tiles = {key: Tile(tile_data[key]) for key in tile_data}
-    tile_contents = TileContent.tile_contents
+    tile_contents: dict[str: TileContent] = TileContent.tile_contents
 
     @staticmethod
     def inside(x, y):
