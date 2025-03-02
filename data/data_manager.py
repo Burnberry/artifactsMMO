@@ -10,6 +10,7 @@ from data.drop import Drop
 from data.tasks import Tasks, Task
 from data.npc_item import NpcItem
 from data.task_reward_data import task_reward_data
+from data.effects import Effects
 
 
 def manage_data():
