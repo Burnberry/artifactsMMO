@@ -25,3 +25,4 @@ class Achievement:
         self.description = data.get('description', None)
         self.type = data.get('type', None)
         self.subtype = data.get('subtype', None)
+        self.current = data.get('current', None)
