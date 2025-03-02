@@ -7,6 +7,7 @@ from data.tile_content import TileContent
 from data.tile_grid import Grid
 from data.drop import Drop
 from data.tasks import Tasks, Task
+from data.npc_item import NpcItem
 
 
 def manage_data():
@@ -54,6 +55,14 @@ def manage_data():
             task.item = Items.get_item(code)
         elif task.type == 'monsters':
             task.monster = Monsters.get_monster(code)
+
+    """Map npc items to npc and items"""
+    for npc_item in NpcItem.npc_items.values():
+        npc_item: NpcItem
+        npc_item.item = Items.get_item(npc_item.code)
+        npc_item.item.npc_item = npc_item
+        npc_item.npc = Npcs.npcs.get(npc_item.npc)
+        npc_item.npc.items.append(npc_item)
 
 
 manage_data()

@@ -4,8 +4,10 @@ class Item:
     def __init__(self, data):
         from data.resource import Resource
         from data.Craft import Craft
+        from data.npc_item import NpcItem
         self.resource: Resource = None
         self.craft: Craft = None
+        self.npc_item: NpcItem = None
 
         self.set_data(data)
         self.add_item(self)

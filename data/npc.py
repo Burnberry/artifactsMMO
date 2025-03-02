@@ -3,7 +3,9 @@ class Npc:
 
     def __init__(self, data):
         from data.tile_content import TileContent
+        from data.npc_item import NpcItem
         self.tile_content: TileContent = None
+        self.items: list[NpcItem] = []
 
         self._set_data(data)
         self.add_npc(self)
