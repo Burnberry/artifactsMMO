@@ -1,16 +1,16 @@
-from data.Craft import Craft
-from data.Drops import Drops
-from data.items import Items, Item
-from data.monsters import Monsters, Monster
-from data.resources import Resources, Resource
-from data.npcs import Npcs, Npc
-from data.tile_content import TileContent
-from data.tile_grid import Grid
-from data.drop import Drop
-from data.tasks import Tasks, Task
-from data.npc_item import NpcItem
-from data.task_reward_data import task_reward_data
-from data.effects import Effects
+from data_wrappers.Craft import Craft
+from data_wrappers.Drops import Drops
+from data_wrappers.items import Items, Item
+from data_wrappers.monsters import Monsters, Monster
+from data_wrappers.resources import Resources, Resource
+from data_wrappers.npcs import Npcs, Npc
+from data_wrappers.tile_content import TileContent
+from data_wrappers.tile_grid import Grid
+from data_wrappers.drop import Drop
+from data_wrappers.tasks import Tasks, Task
+from data_wrappers.npc_item import NpcItem
+from data_wrappers.task_reward_data import task_reward_data
+from data_wrappers.effects import Effects
 
 
 def manage_data():

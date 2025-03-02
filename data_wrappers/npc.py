@@ -2,8 +2,8 @@ class Npc:
     npcs = {}
 
     def __init__(self, data):
-        from data.tile_content import TileContent
-        from data.npc_item import NpcItem
+        from data_wrappers.tile_content import TileContent
+        from data_wrappers.npc_item import NpcItem
         self.tile_content: TileContent = None
         self.items: list[NpcItem] = []
 

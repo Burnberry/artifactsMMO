@@ -1,5 +1,5 @@
-from data.task_data import task_data
-from data.task import Task
+from data_wrappers.task_data import task_data
+from data_wrappers.task import Task
 
 
 class Tasks:

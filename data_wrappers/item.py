@@ -2,9 +2,9 @@ class Item:
     items = {}
 
     def __init__(self, data):
-        from data.resource import Resource
-        from data.Craft import Craft
-        from data.npc_item import NpcItem
+        from data_wrappers.resource import Resource
+        from data_wrappers.Craft import Craft
+        from data_wrappers.npc_item import NpcItem
         self.resource: Resource = None
         self.craft: Craft = None
         self.npc_item: NpcItem = None

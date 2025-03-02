@@ -2,10 +2,10 @@ class TileContent:
     tile_contents: dict[str: 'TileContent'] = {}
 
     def __init__(self, data):
-        from data.monster import Monster
-        from data.npc import Npc
-        from data.resource import Resource
-        from data.tile import Tile
+        from data_wrappers.monster import Monster
+        from data_wrappers.npc import Npc
+        from data_wrappers.resource import Resource
+        from data_wrappers.tile import Tile
         self.tiles: list[Tile] = []
         self.monster: Monster = None
         self.npc: Npc = None

@@ -1,4 +1,4 @@
-from data.npc_item_data import npc_item_data
+from data_wrappers.npc_item_data import npc_item_data
 
 
 class NpcItem:
@@ -9,8 +9,8 @@ class NpcItem:
         self.add_npc_item(self)
 
     def _set_data(self, data):
-        from data.item import Item
-        from data.npc import Npc
+        from data_wrappers.item import Item
+        from data_wrappers.npc import Npc
         self.item: Item = None
         self.npc: Npc = None
 

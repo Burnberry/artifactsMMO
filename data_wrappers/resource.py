@@ -1,14 +1,14 @@
-from data.Drops import Drops
-from data.drop import Drop
+from data_wrappers.Drops import Drops
+from data_wrappers.drop import Drop
 
 
 class Resource:
     resources = {}
 
     def __init__(self, data):
-        from data.item import Item
-        from data.tile_content import TileContent
-        from data.tile import Tile
+        from data_wrappers.item import Item
+        from data_wrappers.tile_content import TileContent
+        from data_wrappers.tile import Tile
         self.main_item: Item = None
         self.tile_content: TileContent = None
         self.tiles: list[Tile] = []

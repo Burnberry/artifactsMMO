@@ -48,6 +48,7 @@ class Noppe(Player):
     def script_main(self):
         # self.task_loop()
         # self.auto = True
+        self.craft_items([(Items.copper, 176)])
         self.gather_loop(resource=Resources.ash_tree)
         # self.gather_loop(Resources.copper_rocks.skill)
 

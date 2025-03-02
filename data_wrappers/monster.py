@@ -1,11 +1,11 @@
-from data.Drops import Drops
+from data_wrappers.Drops import Drops
 
 
 class Monster:
     monsters = {}
 
     def __init__(self, data):
-        from data.tile_content import TileContent
+        from data_wrappers.tile_content import TileContent
         self.tile_content: TileContent = None
 
         self._set_data(data)

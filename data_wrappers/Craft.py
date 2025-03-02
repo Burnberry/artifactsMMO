@@ -2,7 +2,7 @@ class Craft:
     crafts = {}
 
     def __init__(self, data, item, materials):
-        from data.item import Item
+        from data_wrappers.item import Item
         self.item: Item = item
         self.materials: list[(Item, int)] = materials
         self.material_count = None

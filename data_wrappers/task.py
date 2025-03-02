@@ -2,8 +2,8 @@ class Task:
     tasks = {}
 
     def __init__(self, data):
-        from data.item import Item
-        from data.monster import Monster
+        from data_wrappers.item import Item
+        from data_wrappers.monster import Monster
         self.item: Item = None
         self.monster: Monster = None
 

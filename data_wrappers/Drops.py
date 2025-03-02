@@ -1,4 +1,4 @@
-from data.drop import Drop
+from data_wrappers.drop import Drop
 
 
 class Drops:

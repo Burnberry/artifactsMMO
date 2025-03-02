@@ -3,7 +3,7 @@ class Drop:
     drops = set()
 
     def __init__(self, vals):
-        from data.item import Item
+        from data_wrappers.item import Item
         self.item: Item = None
         self.code = vals.get('code', None)
         self.rate = vals.get('rate', None)

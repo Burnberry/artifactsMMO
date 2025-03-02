@@ -1,7 +1,7 @@
 import requests, threading, datetime
 from time import sleep
 
-from data.data_manager import *
+from data_wrappers.data_manager import *
 from helpers import *
 import positions as p
 
