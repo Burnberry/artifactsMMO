@@ -9,6 +9,7 @@ import positions as p
 class Player:
     players = set()
     player_lock = threading.Lock()
+    bank_inventory = None
 
     def __init__(self, name):
         Player.add_player(self)
@@ -24,16 +25,25 @@ class Player:
         self.action_time = datetime.datetime.now()
         self.sync_server()
 
+    # Scripting
     def script_main(self):
         print("No main script made for", self.name)
 
-    def recycle_loop(self, item, location, quantity=1):
-        # todo improve
-        self.deposit_all()
-        self.withdraw(item, quantity)
-        self.move(*location)
-        self.recycle(item, quantity)
+    def starter_achievement_loop(self):
+        achievements = [
+            (Achievements.amateur_miner, Resources.copper_rocks),
+            (Achievements.amateur_lumberjack, Resources.ash_tree),
+            (Achievements.amateur_fisherman, Resources.gudgeon_fishing_spot),
+            (Achievements.amateur_alchmist, Resources.sunflower_field),
+        ]
+        for achievement, resource in achievements:
+            if not achievement.completed_on:
+                n = (achievement.total - achievement.current)//5 + 1
+                print(n)
+                for _ in range(n):
+                    self.gather_resource(resource)
 
+    # helpers
     def craft_items(self, items: list[tuple[Item, int]]):
         required_materials = self.get_required_crafting_materials(items)
         gather_materials = not self.is_carrying_items(required_materials)
@@ -66,7 +76,7 @@ class Player:
 
     def craft_loop(self, item, location, quantity=2**32):
         # todo improve to handle more recipes + level/location checks
-        bank_data = self.get_bank_data()
+        bank_data = self.get_bank_data_deprecated()
         level, skill, materials = item.craft
         mat_qty = sum([qty for mat, qty in materials])
         mats = {mat: (bank_data.get(mat, 0), qty) for (mat, qty) in materials}
@@ -136,6 +146,11 @@ class Player:
         if self.task:
             self.get_task(self.task.type)
             self.action("action/task/complete")
+
+    def gather_resource(self, resource):
+        if self.inventory_count >= self.inventory_max_items:
+            self.deposit_all()
+        self.gather(resource)
 
     def gather_loop(self, skill=None, resource=None):
         while self.auto:
@@ -212,6 +227,8 @@ class Player:
         data = self.response.json()['data']
         if 'character' in data:
             self.set_player_data(data['character'])
+        if 'bank' in data:
+            self.set_bank_data(data['bank'])
 
     def log_time(self, msg):
         time = datetime.datetime.now()
@@ -267,10 +284,34 @@ class Player:
             self.has_lock = False
 
     @staticmethod
-    def get_bank_data():
+    def get_bank_data_deprecated():
         data = Player.get_all_data("/my/bank/items")
         return {Items.get_item(item['code']): item['quantity'] for item in data}
 
+    @staticmethod
+    def update_bank_data():
+        data = Player.get_all_data("/my/bank/items")
+        Player.set_bank_data(data)
+
+    @staticmethod
+    def set_bank_data(data):
+        bank_inventory = {}
+        for vals in data:
+            item = Items.get_item(vals['code'])
+            bank_inventory[item] = vals["quantity"]
+        Player.bank_inventory = bank_inventory
+
+    @staticmethod
+    def update_achievement_data():
+        data = Player.get_all_data("/accounts/Burnberry/achievements")
+        for vals in data:
+            achievement = Achievements.get_achievement(vals['code'])
+            achievement.current = vals['current']
+            achievement.is_complete = vals['completed_at']
+
+    @staticmethod
+    def get_bank_stock(item):
+        return Player.bank_inventory.get(item, 0)
 
     @staticmethod
     def add_player(player):
@@ -417,3 +458,7 @@ class Player:
         self.task_total = player_data.get('task_total', None)
         self.inventory_max_items = player_data.get('inventory_max_items', None)
         self.inventory = player_data.get('inventory', None)
+
+
+Player.update_bank_data()
+Player.update_achievement_data()

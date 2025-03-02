@@ -6,7 +6,7 @@ class Noppe(Player):
         super().__init__("Noppe")
 
     def task_loop(self):
-        bank_data = self.get_bank_data()
+        bank_data = self.get_bank_data_deprecated()
         while True:
             if not self.task:
                 break
@@ -46,9 +46,10 @@ class Noppe(Player):
         self.deposit_all()
 
     def script_main(self):
+        self.starter_achievement_loop()
         # self.task_loop()
         # self.auto = True
-        self.craft_items([(Items.copper, 60)])
+        self.craft_items([(Items.ash_plank, 150)])
         self.gather_loop(resource=Resources.ash_tree)
         # self.gather_loop(Resources.copper_rocks.skill)
 
@@ -58,6 +59,7 @@ class Rubius(Player):
         super().__init__("Rubius")
 
     def script_main(self):
+        self.starter_achievement_loop()
         # self.craft_loop(Item.ash_plank, (-2, -3), 80)
         self.gather_loop(resource=Resources.copper_rocks)
         # self.gather_loop(Resources.ash_tree.skill)
@@ -68,6 +70,7 @@ class Pebbleboy(Player):
         super().__init__("Pebbleboy")
 
     def script_main(self):
+        self.starter_achievement_loop()
         self.gather_loop(resource=Resources.ash_tree)
         # self.gather_loop(resource=Resources.copper_rocks)
 
@@ -77,6 +80,7 @@ class Leandra(Player):
         super().__init__("Leandra")
 
     def script_main(self):
+        self.starter_achievement_loop()
         # self.craft_loop(Item.small_health_potion, (2, 3), 800)
         self.gather_loop(resource=Resources.copper_rocks)
         # self.gather_loop(Resources.gudgeon_fishing_spot.skill)
@@ -87,6 +91,7 @@ class Hekate(Player):
         super().__init__("Hekate")
 
     def script_main(self):
+        self.starter_achievement_loop()
         # self.craft_items([(Items.cooked_gudgeon, 335)])
         # self.gather_loop(Resources.sunflower_field.skill)
         self.gather_loop(resource=Resources.copper_rocks)

@@ -14,13 +14,15 @@ from data_wrappers.achievements import Achievement, Achievements
 
 
 def manage_data():
-    """Map item crafts to items"""
+    """Map item crafts to items and whether item is material"""
     for code, item in Items.items.items():
         if not item.craft:
             continue
         materials = [(Items.get_item(mat['code']), mat['quantity']) for mat in item.craft['items']]
         item.craft = Craft(item.craft, item, materials)
         item.craft.update_material_count()
+        for material, _ in materials:
+            material.is_material = True
 
     """Add task reward data as drop to task coin"""
     Items.tasks_coin.drops = Drops([vals for vals in task_reward_data.values()], Items.tasks_coin)

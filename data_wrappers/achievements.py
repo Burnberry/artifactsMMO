@@ -6,7 +6,7 @@ class Achievements:
     achievements = Achievement.achievements
 
     @staticmethod
-    def get_effect(code):
+    def get_achievement(code):
         return Achievements.achievements.get(code, None)
 
     loktar_ogar = Achievement(achievement_data['loktar_ogar'])

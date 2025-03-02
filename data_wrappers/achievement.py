@@ -17,12 +17,16 @@ class Achievement:
         return Achievement.achievements[code]
 
     def __repr__(self):
-        return "%s - %s.%s: %s" % (self.name, self.type, self.subtype, self.description)
+        return "%s - %s: %s" % (self.name, self.type, self.description)
 
     def __set_data(self, data):
         self.name = data.get('name', None)
         self.code = data.get('code', None)
         self.description = data.get('description', None)
+        self.points = data.get('points', None)
         self.type = data.get('type', None)
-        self.subtype = data.get('subtype', None)
+        self.target = data.get('target', None)
+        self.total = data.get('total', None)
+        self.rewards = data.get('rewards', None)
         self.current = data.get('current', None)
+        self.completed_on = data.get('completed_on', None)

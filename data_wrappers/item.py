@@ -7,6 +7,8 @@ class Item:
         from data_wrappers.npc_item import NpcItem
         self.resource: Resource = None
         self.craft: Craft = None
+        self.is_material = False
+        self.processed_item: 'Item' = None
         self.npc_item: NpcItem = None
         self.drops = None
 
