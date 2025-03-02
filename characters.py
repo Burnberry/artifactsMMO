@@ -9,7 +9,8 @@ class Noppe(Player):
         bank_data = self.get_bank_data()
         while True:
             if not self.task:
-                self.get_task('items')
+                break
+                # self.get_task('items')
             item = self.task.item
             quantity = self.task_total - self.task_progress
 
@@ -45,9 +46,10 @@ class Noppe(Player):
         self.deposit_all()
 
     def script_main(self):
-        self.task_loop()
-        self.auto = True
-        self.gather_loop(Resources.copper_rocks.skill)
+        # self.task_loop()
+        # self.auto = True
+        self.gather_loop(resource=Resources.ash_tree)
+        # self.gather_loop(Resources.copper_rocks.skill)
 
 
 class Rubius(Player):
@@ -56,7 +58,8 @@ class Rubius(Player):
 
     def script_main(self):
         # self.craft_loop(Item.ash_plank, (-2, -3), 80)
-        self.gather_loop(Resources.ash_tree.skill)
+        self.gather_loop(resource=Resources.copper_rocks)
+        # self.gather_loop(Resources.ash_tree.skill)
 
 
 class Pebbleboy(Player):
@@ -64,7 +67,8 @@ class Pebbleboy(Player):
         super().__init__("Pebbleboy")
 
     def script_main(self):
-        self.gather_loop(Resources.copper_rocks.skill)
+        self.gather_loop(resource=Resources.ash_tree)
+        # self.gather_loop(resource=Resources.copper_rocks)
 
 
 class Leandra(Player):
@@ -73,7 +77,8 @@ class Leandra(Player):
 
     def script_main(self):
         # self.craft_loop(Item.small_health_potion, (2, 3), 800)
-        self.gather_loop(Resources.gudgeon_fishing_spot.skill)
+        self.gather_loop(resource=Resources.copper_rocks)
+        # self.gather_loop(Resources.gudgeon_fishing_spot.skill)
 
 
 class Hekate(Player):
@@ -81,4 +86,6 @@ class Hekate(Player):
         super().__init__("Hekate")
 
     def script_main(self):
-        self.gather_loop(Resources.sunflower_field.skill)
+        # self.craft_items([(Items.cooked_gudgeon, 335)])
+        # self.gather_loop(Resources.sunflower_field.skill)
+        self.gather_loop(resource=Resources.copper_rocks)

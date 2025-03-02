@@ -19,6 +19,7 @@ class Player:
         self.thread = None
         self.server_drift = None
         self.last_server_sync = None
+        self.action_time = datetime.datetime.now()
         self.sync_server()
 
     def script_main(self):
@@ -31,7 +32,7 @@ class Player:
         self.move(*location)
         self.recycle(item, quantity)
 
-    def craft_items(self, items: list[Item, int]):
+    def craft_items(self, items: list[tuple[Item, int]]):
         required_materials = self.get_required_crafting_materials(items)
         gather_materials = not self.is_carrying_items(required_materials)
 
@@ -48,7 +49,7 @@ class Player:
                 self.craft(item, qty_to_craft)
                 quantity -= qty_to_craft
 
-    def get_required_crafting_materials(self, items: list[Item, int]):
+    def get_required_crafting_materials(self, items: list[tuple[Item, int]]):
         required_materials = {}
         for item, qty in items:
             for material, quantity in item.craft.materials:
@@ -134,12 +135,14 @@ class Player:
             self.get_task(self.task.type)
             self.action("action/task/complete")
 
-    def gather_loop(self, skill):
+    def gather_loop(self, skill=None, resource=None):
         while self.auto:
             if self.inventory_count >= self.inventory_max_items:
                 self.deposit_all()
             else:
-                self.gather(self.get_highest_resource(skill))
+                if not resource:
+                    resource = self.get_highest_resource(skill)
+                self.gather(resource)
 
     def get_highest_resource(self, skill):
         level = self.get_level(skill)
@@ -198,9 +201,16 @@ class Player:
         self.response = requests.post(self.base_path+path, json=data, headers=headers)
         if self.response.status_code != 200:
             print(self.name, path, data, self.response.json())
+        if self.name == "Noppe" and False:
+            self.log_time(path)
         data = self.response.json()['data']
         if 'character' in data:
             self.set_player_data(data['character'])
+
+    def log_time(self, msg):
+        time = datetime.datetime.now()
+        print(msg, time - self.action_time)
+        self.action_time = time
 
     def sync_server(self):
         if not self.last_server_sync:
@@ -274,7 +284,7 @@ class Player:
             threads.append(threading.Thread(target=player.script_main))
         i = 0
         for thread in threads:
-            sleep(1)
+            sleep(0.05)
             i += 1
             print("starting thread", i)
             thread.start()
@@ -291,6 +301,7 @@ class Player:
         else:
             cooldown_time = to_datetime(self.cooldown_expiration) - (datetime.datetime.now() + self.server_drift)
             cooldown = cooldown_time.days*24*60*60 + cooldown_time.seconds + cooldown_time.microseconds/10**6
+            cooldown -= 0.35  # request transfer delay
         return cooldown
 
     def set_player_data(self, player_data):
