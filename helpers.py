@@ -1,9 +1,11 @@
 import datetime
+from private.config import config
 
 
 def get_api_key():
-    with open('key.txt', 'r') as file:
-        return file.readline()
+    if not (key := config.get('key', None)):
+        print("Make sure to fill in the data correctly in private/config.py")
+    return key
 
 
 url = "https://api.artifactsmmo.com/"
