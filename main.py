@@ -1,9 +1,3 @@
-import requests, json
-from time import sleep
-
-import positions as p
-from helpers import *
-from player import Player
 from characters import *
 
 players = [Noppe(), Rubius(), Pebbleboy(), Leandra(), Hekate()]

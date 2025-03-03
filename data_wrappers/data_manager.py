@@ -10,6 +10,7 @@ from data_wrappers.tasks import Tasks, Task
 from data_wrappers.npc_item import NpcItem
 from data_wrappers.data.task_reward_data import task_reward_data
 from data_wrappers.events import Events, Event
+from data_wrappers.effects import Effects, Effect
 from data_wrappers.achievements import Achievement, Achievements
 
 

@@ -3,7 +3,6 @@ from time import sleep
 
 from data_wrappers.data_manager import *
 from helpers import *
-import positions as p
 
 
 class Player:
@@ -37,11 +36,20 @@ class Player:
             (Achievements.amateur_alchmist, Resources.sunflower_field),
         ]
         for achievement, resource in achievements:
-            if not achievement.completed_on:
-                n = (achievement.total - achievement.current)//5 + 1
+            if achievement.current < achievement.total:
+                n = (achievement.total - achievement.current)//4 + 1
                 print(n)
                 for _ in range(n):
                     self.gather_resource(resource)
+
+    def main_skills_loop(self):
+        resources = [Resources.copper_rocks, Resources.ash_tree, Resources.sunflower_field, Resources.gudgeon_fishing_spot]
+        for resource in resources:
+            while self.get_level(resource.skill) < 10:
+                self.gather_resource(resource)
+
+        while self.get_level(Items.cooked_gudgeon.craft.skill) < 10:
+            self.craft_items([(Items.cooked_gudgeon, 100)])
 
     # helpers
     def craft_items(self, items: list[tuple[Item, int]]):
@@ -213,22 +221,33 @@ class Player:
     def action(self, path, data=None):
         self.sync_server()
 
-        self.lock_release()
-        cooldown = self.get_cooldown_time()
-        if cooldown > 0:
-            sleep(cooldown)
-        self.response = requests.post(self.base_path+path, json=data, headers=headers)
-        if self.response.status_code != 200:
-            print(self.name, path, data, self.response.json())
-        if self.name == "Noppe" and False:
-            self.log_time(path)
-        self.lock_acquire()
+        self._action(path, data)
 
         data = self.response.json()['data']
         if 'character' in data:
             self.set_player_data(data['character'])
         if 'bank' in data:
             self.set_bank_data(data['bank'])
+
+    def _action(self, path, data=None):
+        self.lock_release()
+
+        cooldown = self.get_cooldown_time()
+        if cooldown > 0:
+            sleep(cooldown)
+        for i in range(3):
+            self.response = requests.post(self.base_path + path, json=data, headers=headers)
+            if self.response.status_code != 200:
+                print(self.name, path, data, self.response.json())
+                sleep(0.01 + 0.1*i**2)
+            else:
+                break
+        if self.name == "Noppe" and False:
+            self.log_time(path)
+        if self.response.status_code != 200:
+            return
+
+        self.lock_acquire()
 
     def log_time(self, msg):
         time = datetime.datetime.now()
