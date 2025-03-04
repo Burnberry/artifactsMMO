@@ -30,28 +30,35 @@ class Noppe(Player):
             bank_data[item] -= self.inventory_count
             self.turn_in_items(item, self.inventory_count)
 
-
-    def fight_loop(self, n=-1):
-        heal_items = 50
-        self.move(Grid.chicken.tiles)
-        while heal_items > 0 and n != 0:
+    def fight_loop(self, monster, n):
+        for _ in range(n):
             if self.max_hp - self.hp >= 75:
-                self.use(Items.cooked_gudgeon)
+                if self.inventory.get(Items.cooked_gudgeon, 0) <= 0:
+                    self.ensure_items([(Items.cooked_gudgeon, 90)])
+                else:
+                    self.use(Items.cooked_gudgeon, 1)
             else:
-                n -= 1
+                self.move(monster.tile_content.tiles)
                 self.fight()
-        self.script_main()
 
-    def level_craft_loop(self):
-        self.deposit_all()
+    def monster_task_loop(self):
+        while True:
+            if not self.task:
+                self.get_task('monsters')
+            while self.task.level > 7:
+                if not self.inventory.get(Items.tasks_coin, 0) > 0:
+                    return False
+                self.action("action/task/cancel")
+            self.fight_loop(self.task.monster, self.task_total-self.task_progress)
 
     def script_main(self):
         self.starter_achievement_loop()
+        self.monster_task_loop()
         self.main_skills_loop()
-        # self.task_loop()
-        # self.auto = True
-        self.craft_items([(Items.ash_plank, 150)])
-        self.gather_loop(resource=Resources.ash_tree)
+        # self.craft_skill_loop(Items.copper_dagger, 5)
+        # self.craft_skill_loop(Items.wooden_shield, 5)
+        # self.craft_skill_loop(Items.copper_ring, 5)
+        self.gather_loop(skill=Resources.gudgeon_fishing_spot.skill)
         # self.gather_loop(Resources.copper_rocks.skill)
 
 
@@ -61,9 +68,10 @@ class Rubius(Player):
 
     def script_main(self):
         self.starter_achievement_loop()
+        self.cook_fish(Items.cooked_gudgeon)
         self.main_skills_loop()
         # self.craft_loop(Item.ash_plank, (-2, -3), 80)
-        self.gather_loop(resource=Resources.copper_rocks)
+        self.gather_loop(skill=Resources.ash_tree.skill)
         # self.gather_loop(Resources.ash_tree.skill)
 
 
@@ -73,8 +81,9 @@ class Pebbleboy(Player):
 
     def script_main(self):
         self.starter_achievement_loop()
+        self.cook_fish(Items.cooked_gudgeon)
         self.main_skills_loop()
-        self.gather_loop(resource=Resources.ash_tree)
+        self.gather_loop(skill=Resources.copper_rocks.skill)
         # self.gather_loop(resource=Resources.copper_rocks)
 
 
@@ -84,9 +93,10 @@ class Leandra(Player):
 
     def script_main(self):
         self.starter_achievement_loop()
+        self.cook_fish(Items.cooked_shrimp)
         self.main_skills_loop()
         # self.craft_loop(Item.small_health_potion, (2, 3), 800)
-        self.gather_loop(resource=Resources.copper_rocks)
+        self.gather_loop(skill=Resources.gudgeon_fishing_spot.skill)
         # self.gather_loop(Resources.gudgeon_fishing_spot.skill)
 
 
@@ -95,9 +105,7 @@ class Hekate(Player):
         super().__init__("Hekate")
 
     def script_main(self):
-        # self.starter_achievement_loop()
+        self.starter_achievement_loop()
+        self.cook_fish(Items.cooked_shrimp)
         self.main_skills_loop()
-        while self.alchemy_level < 20:
-            self.craft_items([(Items.small_health_potion, 33)])
-
-        self.gather_loop(resource=Resources.copper_rocks)
+        self.gather_loop(skill=Resources.gudgeon_fishing_spot.skill)

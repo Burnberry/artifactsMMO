@@ -1,3 +1,5 @@
+from typing import Optional
+
 from data_wrappers.Craft import Craft
 from data_wrappers.Drops import Drops, Drop
 from data_wrappers.items import Items, Item

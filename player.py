@@ -28,6 +28,11 @@ class Player:
     def script_main(self):
         print("No main script made for", self.name)
 
+    def cook_fish(self, fish):
+        fish_raw = fish.craft.materials[0][0]
+        while self.bank_inventory.get(fish_raw, 0) >= self.inventory_max_items:
+            self.craft_items([(fish, self.inventory_max_items)])
+
     def starter_achievement_loop(self):
         achievements = [
             (Achievements.amateur_miner, Resources.copper_rocks),
@@ -51,6 +56,37 @@ class Player:
         while self.get_level(Items.cooked_gudgeon.craft.skill) < 10:
             self.craft_items([(Items.cooked_gudgeon, 100)])
 
+    def craft_skill_loop(self, item, level):
+        skill = item.craft.skill
+
+        while self.get_level(skill) < level:
+            if self.ensure_items(item.craft.materials, self.inventory_max_items//item.craft.material_count):
+                self.craft_items([(item, 1)])
+                self.recycle(item, 1)
+            else:
+                material, _ = item.craft.materials[0]
+                n = self.inventory_max_items//material.craft.material_count
+                self.craft_items([(material, n)])
+
+    def ensure_items(self, items, factor=None):
+        items_to_get = []
+        size = 0
+        for item, n in items:
+            x = n - self.inventory.get(item, 0)
+            if x > 0:
+                items_to_get.append((item, x))
+                size += x
+        for item, n in items_to_get:
+            if self.bank_inventory.get(item, 0) < n:
+                return False
+        if size > self.inventory_max_items - self.inventory_count:
+            self.deposit_all()  # can be optimized to keep required items
+        if items_to_get and factor:
+            return self.ensure_items([(item, n * factor) for item, n in items])
+        for item, n in items_to_get:
+            self.withdraw(item, n)
+        return True
+
     # helpers
     def craft_items(self, items: list[tuple[Item, int]]):
         required_materials = self.get_required_crafting_materials(items)
@@ -61,7 +97,7 @@ class Player:
                 qty_to_craft = quantity
                 if gather_materials:
                     self.deposit_all()
-                    qty_to_craft = self.inventory_max_items//item.craft.material_count
+                    qty_to_craft = min(quantity, self.inventory_max_items//item.craft.material_count)
                     for material, qty in item.craft.materials:
                         self.withdraw(material, qty*qty_to_craft)
                 tiles = Grid.tile_contents.get(item.craft.skill).tiles
