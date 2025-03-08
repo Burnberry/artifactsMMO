@@ -1,5 +1,10 @@
 import json
 from player import Player
+from templates.data_template import data_template
+
+
+_path = "data_wrappers_test/"
+_tab = "    "
 
 
 class Search:
@@ -16,6 +21,140 @@ class Search:
     _achievement_data = None
 
     """Helper methods"""
+    @staticmethod
+    def file_exists(path):
+        try:
+            with open(path, 'r') as file:
+                file.close()
+            return True
+        except IOError:
+            return False
+
+    @staticmethod
+    def data_autogen(name, data, code):
+        raw_data = Search.get_raw_data(data, code)
+        Search.write_raw_data(name, data, code)
+        Search.ensure_data_file(name, code)
+
+        data_path = _path + "%s.py" % name
+        content = ""
+
+        with open(data_path, 'r') as file:
+            manual_section = []
+            auto_section = []
+            is_auto = False
+
+            for line in file.readlines():
+                if "AUTO-GENERATED SECTION" in line:
+                    is_auto = True
+
+                if not is_auto:
+                    manual_section.append(line)
+                if is_auto:
+                    auto_section.append(line)
+            file.close()
+
+        auto_section = Search.get_updated_auto_lines(auto_section, name, raw_data, code)
+        for line in manual_section + auto_section:
+            content += line
+        content = content[:-1]
+
+        with open(data_path, 'w+') as file:
+            file.write(content)
+            file.close()
+
+    @staticmethod
+    def get_updated_auto_lines(auto_section, name, raw_data, code):
+        new_section = []
+        key = False
+        data_seen = set()
+
+        for line in auto_section:
+            if "auto-attrs end" in line:
+                key = False
+                Search.add_attrs(new_section, name, raw_data)
+
+            elif "_set_data end" in line:
+                key = False
+                Search.add_set_data(new_section, name, raw_data, code, data_seen)
+
+            if not key:
+                new_section.append(line)
+            if key == "attrs":
+                if "# custom" in line:
+                    new_section.append(line)
+            elif key == "data":
+                if "# custom" in line:
+                    data_seen.add(line.split('=')[0].strip().replace('self.', ''))
+                    new_section.append(line)
+
+            if "auto-attrs start" in line:
+                key = "attrs"
+            elif "_set_data start" in line:
+                key = "data"
+
+        return new_section
+
+    @staticmethod
+    def add_attrs(new_section, name, raw_data):
+        sc_name, cc_name = Search.get_names(name)
+        for key in raw_data:
+            line = "    %s: '%s'\n" % (key, cc_name)
+            new_section.append(line)
+
+    @staticmethod
+    def add_set_data(new_section, name, raw_data, code, data_seen):
+        values = list(raw_data.values())[0]
+        for key in values:
+            if key in data_seen:
+                continue
+            line = "        self.%s = data.get('%s', None)\n" % (key, key)
+            new_section.append(line)
+
+    @staticmethod
+    def ensure_data_file(name, code):
+        sc_name, cc_name = Search.get_names(name)
+        path = _path + "%s.py" % name
+        if not Search.file_exists(path):
+            # create file
+            with open(path, 'w+') as file:
+                template = data_template % (cc_name, sc_name+'s', cc_name, sc_name+'s', code, code)
+                file.write(template)
+                file.close()
+
+    @staticmethod
+    def write_raw_data(name, data, keys):
+        raw_data = Search.get_raw_data(data, keys, text=True)
+        with open(_path + "data/%s_data.py" % name, 'w+') as file:
+            file.write("%s_data = " % name)
+            file.write(raw_data)
+            file.close()
+
+    @staticmethod
+    def get_raw_data(data, keys, text=False):
+        if isinstance(keys, str):
+            keys = [keys]
+        new_data = {}
+        for values in data:
+            if len(keys) == 1:
+                key = values[keys[0]]
+            else:
+                key = tuple([values[k] for k in keys])
+            new_data[key] = values
+        if len(keys) == 1 and text:
+            return json.dumps(new_data, indent=4).replace("null", "None").replace("true", "True").replace("false",
+                                                                                                         "False")
+        else:
+            return new_data
+
+    @staticmethod
+    def get_names(name):
+        sc_name = name
+        cc_name = ""
+        for n in name.split('_'):
+            cc_name += n.capitalize()
+        return sc_name, cc_name
+
     @staticmethod
     def print_attributes(data, dict_name='data'):
         for key in data:
