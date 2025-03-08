@@ -28,10 +28,68 @@ class Player:
     def script_main(self):
         print("No main script made for", self.name)
 
-    def cook_fish(self, fish):
-        fish_raw = fish.craft.materials[0][0]
-        while self.bank_inventory.get(fish_raw, 0) >= self.inventory_max_items:
-            self.craft_items([(fish, self.inventory_max_items)])
+    def equip_lvl1(self):
+        if not self.weapon_slot:
+            self.withdraw(Items.wooden_staff)
+            self.equip(Items.wooden_staff)
+
+    def equip_lvl5(self):
+        if self.level >= 5 and self.weapon_slot == Items.wooden_staff.code:
+            self.withdraw(Items.water_bow)
+            self.equip(Items.water_bow)
+            self.withdraw(Items.feather_coat)
+            self.equip(Items.feather_coat)
+            self.withdraw(Items.copper_legs_armor)
+            self.equip(Items.copper_legs_armor)
+
+    def equip_lvl10(self):
+        if self.level >= 10 and self.weapon_slot == Items.water_bow.code and self.bank_inventory.get(Items.iron_sword, 0) > 0:
+            self.withdraw(Items.iron_sword)
+            self.equip(Items.iron_sword)
+
+    def equip_lvl15(self):
+        if self.level >= 15 and self.weapon_slot != Items.multislimes_sword and self.bank_inventory.get(Items.multislimes_sword, 0) > 0:
+            self.ensure_equipment(Items.multislimes_sword)
+
+    def fight_loop(self, monster, n):
+        while n > 0:
+            self.equip_lvl5()
+            self.equip_lvl10()
+            self.equip_lvl15()
+            if self.inventory_max_items-4 <= self.inventory_count:
+                self.deposit_all()
+            if self.max_hp - self.hp >= 75:
+                if self.inventory.get(Items.cooked_shrimp, 0) <= 0:
+                    if not self.ensure_items([(Items.cooked_shrimp, 100)]):
+                        return False
+                else:
+                    self.use(Items.cooked_shrimp, 1)
+            else:
+                self.move(monster.tile_content.tiles)
+                self.fight()
+                n -= 1
+        return True
+
+    def monster_task_loop(self):
+        while True:
+            if self.inventory_max_items - 4 <= self.inventory_count:
+                self.deposit_all()
+            if not self.task:
+                self.get_task('monsters')
+            max_level = 6
+            if self.level >= 10:
+                max_level = 7
+            if self.level >= 15:
+                max_level = 8
+
+            while self.task.level > max_level:
+                if not self.inventory.get(Items.tasks_coin, 0) > 0:
+                    return False
+                self.action("action/task/cancel")
+                self.get_task('monsters')
+            if not self.fight_loop(self.task.monster, self.task_total-self.task_progress):
+                return
+            self.complete_task()
 
     def starter_achievement_loop(self):
         achievements = [
@@ -64,9 +122,16 @@ class Player:
                 self.craft_items([(item, 1)])
                 self.recycle(item, 1)
             else:
-                material, _ = item.craft.materials[0]
-                n = self.inventory_max_items//material.craft.material_count
-                self.craft_items([(material, n)])
+                return
+                # material, _ = item.craft.materials[0]
+                # n = self.inventory_max_items//material.craft.material_count
+                # self.craft_items([(material, n)])
+
+    def ensure_equipment(self, item, slot=None, quantity=None):
+        slot = slot or item.type
+        if getattr(self, "%s_slot" % slot) != item.code and self.bank_inventory.get(item, 0) > 0:
+            self.withdraw(item)
+            self.equip(item)
 
     def ensure_items(self, items, factor=None):
         items_to_get = []
@@ -82,6 +147,10 @@ class Player:
         if size > self.inventory_max_items - self.inventory_count:
             self.deposit_all()  # can be optimized to keep required items
         if items_to_get and factor:
+            for i in range(factor-1):
+                res = self.ensure_items([(item, n * (factor-i)) for item, n in items])
+                if res:
+                    return res
             return self.ensure_items([(item, n * factor) for item, n in items])
         for item, n in items_to_get:
             self.withdraw(item, n)
@@ -259,11 +328,12 @@ class Player:
 
         self._action(path, data)
 
-        data = self.response.json()['data']
-        if 'character' in data:
-            self.set_player_data(data['character'])
-        if 'bank' in data:
-            self.set_bank_data(data['bank'])
+        if 'application/json' in self.response.headers.get('Content-Type', ''):
+            data = self.response.json()['data']
+            if 'character' in data:
+                self.set_player_data(data['character'])
+            if 'bank' in data:
+                self.set_bank_data(data['bank'])
 
     def _action(self, path, data=None):
         self.lock_release()
@@ -278,8 +348,8 @@ class Player:
                 sleep(0.01 + 0.1*i**2)
             else:
                 break
-        if self.name == "Noppe" and False:
-            self.log_time(path)
+        # if self.name == "Noppe":
+        #     self.log_time(path)
         if self.response.status_code != 200:
             return
 
@@ -412,7 +482,7 @@ class Player:
         else:
             cooldown_time = to_datetime(self.cooldown_expiration) - (datetime.datetime.now() + self.server_drift)
             cooldown = cooldown_time.days*24*60*60 + cooldown_time.seconds + cooldown_time.microseconds/10**6
-            cooldown -= 0.35  # request transfer delay
+            cooldown -= 0.30  # request transfer delay
         return cooldown
 
     def set_player_data(self, player_data):
