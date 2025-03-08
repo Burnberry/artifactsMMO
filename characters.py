@@ -1,9 +1,10 @@
 from player import *
+from goal_base import GoalManager
 
 
 class Noppe(Player):
     def __init__(self):
-        super().__init__("Noppe")
+        super().__init__("Noppe", "fighter")
 
     def task_loop(self):
         bank_data = self.get_bank_data_deprecated()
@@ -31,17 +32,18 @@ class Noppe(Player):
             self.turn_in_items(item, self.inventory_count)
 
     def script_main(self):
+        GoalManager.goal_loop(self)
         self.starter_achievement_loop()
         # self.craft_skill_loop(Items.iron_sword, 15)
         # self.craft_skill_loop(Items.greater_wooden_staff, 15)
         self.monster_task_loop()
         self.main_skills_loop()
-        self.gather_loop(skill=Resources.gudgeon_fishing_spot.skill)
+        self.gather_loop(resource_forced=Resources.iron_rocks)
 
 
 class Rubius(Player):
     def __init__(self):
-        super().__init__("Rubius")
+        super().__init__("Rubius", "forager")
 
     def script_main(self):
         self.starter_achievement_loop()
@@ -58,7 +60,7 @@ class Rubius(Player):
 
 class Pebbleboy(Player):
     def __init__(self):
-        super().__init__("Pebbleboy")
+        super().__init__("Pebbleboy", 'miner')
 
     def script_main(self):
         self.starter_achievement_loop()
@@ -74,7 +76,8 @@ class Pebbleboy(Player):
 
 class Leandra(Player):
     def __init__(self):
-        super().__init__("Leandra")
+        super().__init__("Leandra", "hunter")
+        self.goal_manager = None
 
     def script_main(self):
         self.starter_achievement_loop()
@@ -89,12 +92,18 @@ class Leandra(Player):
 
 class Hekate(Player):
     def __init__(self):
-        super().__init__("Hekate")
+        super().__init__("Hekate", "witch")
+        self.goal_manager = None
 
     def script_main(self):
+        if self.goal_manager:
+            print("Goaling")
+            goaling = True
+            while goaling:
+                goaling = self.goal_manager._perform(self)
         self.starter_achievement_loop()
-        self.ensure_equipment(Items.spruce_fishing_rod)
+        self.ensure_equipment(Items.leather_gloves)
         self.equip_lvl1()
         # self.monster_task_loop()
         self.main_skills_loop()
-        self.gather_loop(skill=Resources.gudgeon_fishing_spot.skill)
+        self.gather_loop(skill=Resources.sunflower_field.skill)

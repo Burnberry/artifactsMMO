@@ -10,9 +10,10 @@ class Player:
     player_lock = threading.Lock()
     bank_inventory = None
 
-    def __init__(self, name):
+    def __init__(self, name, role):
         Player.add_player(self)
         self.name = name
+        self.role = role
         self.base_path = url + "my/%s/" % self.name
         self.response = None
         self.get_character_data()
@@ -23,6 +24,9 @@ class Player:
         self.last_server_sync = None
         self.action_time = datetime.datetime.now()
         self.sync_server()
+
+    def __repr__(self):
+        return self.name
 
     # Scripting
     def script_main(self):
@@ -114,6 +118,25 @@ class Player:
         while self.get_level(Items.cooked_gudgeon.craft.skill) < 10:
             self.craft_items([(Items.cooked_gudgeon, 100)])
 
+    def craft_skill_batch(self, item, level):
+        n = self.inventory_max_items//item.craft.material_count
+        n = min(n, self.item_sets_available(item.craft.materials))
+        self.ensure_items(item.craft.materials, n)
+
+        print(self.name, "level crafting", n, item)
+        while self.get_level(item.craft.skill) < level and n > 0:
+            self.craft_items([(item, 1)])
+            n -= 1
+
+    def item_sets_available(self, items):
+        n = 2**31
+        for item, qty in items:
+            n = min(n, self.get_available_qty(item)//qty)
+        return n
+
+    def get_available_qty(self, item):
+        return self.bank_inventory.get(item, 0)
+
     def craft_skill_loop(self, item, level):
         skill = item.craft.skill
 
@@ -174,7 +197,8 @@ class Player:
                 self.craft(item, qty_to_craft)
                 quantity -= qty_to_craft
 
-    def get_required_crafting_materials(self, items: list[tuple[Item, int]]):
+    @staticmethod
+    def get_required_crafting_materials(items: list[tuple[Item, int]]):
         required_materials = {}
         for item, qty in items:
             for material, quantity in item.craft.materials:
@@ -205,6 +229,9 @@ class Player:
             self.move(*location)
             self.craft(item, qty_to_craft)
             quantity -= qty_to_craft
+
+    def get_available_items(self):
+        return self.bank_inventory
 
     def craft_one(self, item, location, equip=False):
         level, skill, materials = item.craft
@@ -265,14 +292,28 @@ class Player:
             self.deposit_all()
         self.gather(resource)
 
-    def gather_loop(self, skill=None, resource=None):
+    def gather_loop(self, skill=None, resource_forced=None):
+        resource = None
         while self.auto:
             if self.inventory_count >= self.inventory_max_items:
                 self.deposit_all()
             else:
-                if not resource:
+                if not resource_forced:
                     resource = self.get_highest_resource(skill)
-                self.gather(resource)
+                self.gather(resource or resource_forced)
+
+    def gather_batch(self, arg):
+        skill, resource = None, None
+        if isinstance(arg, Resource):
+            resource = arg
+        elif isinstance(arg, Item):
+            resource = arg.resource
+        else:
+            skill = arg
+        if self.inventory_count >= self.inventory_max_items - 40:
+            self.deposit_all()
+        while self.inventory_count < self.inventory_max_items:
+            self.gather(resource or self.get_highest_resource(skill))
 
     def get_highest_resource(self, skill):
         level = self.get_level(skill)
@@ -380,7 +421,6 @@ class Player:
         page, pages = 0, 1
         while page < pages:
             page += 1
-            sleep(0.2)
             response = Player.get_request(path, {'page': page})
             content = response.json()
             pages = content.get('pages', 1)
