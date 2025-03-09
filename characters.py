@@ -32,6 +32,8 @@ class Noppe(Player):
             self.turn_in_items(item, self.inventory_count)
 
     def script_main(self):
+        # self.craft_items([(Items.iron, 26)])
+        self.craft_skill_loop(Items.iron_sword, 20)
         GoalManager.goal_loop(self)
         self.starter_achievement_loop()
         # self.craft_skill_loop(Items.iron_sword, 15)
@@ -50,11 +52,11 @@ class Rubius(Player):
         self.equip_lvl1()
         self.ensure_equipment(Items.iron_axe)
         # self.monster_task_loop()
-        if (n := self.bank_inventory.get(Items.spruce_wood, 0)) > 100:
-            self.craft_items([(Items.spruce_plank, n//10)])
+        # if (n := self.bank_inventory.get(Items.spruce_wood, 0)) > 100:
+        #     self.craft_items([(Items.spruce_plank, n//10)])
         self.main_skills_loop()
         # self.craft_loop(Item.ash_plank, (-2, -3), 80)
-        self.gather_loop(skill=Resources.ash_tree.skill)
+        self.gather_loop(resource_forced=Resources.dead_tree)
         # self.gather_loop(Resources.ash_tree.skill)
 
 
@@ -66,11 +68,11 @@ class Pebbleboy(Player):
         self.starter_achievement_loop()
         self.equip_lvl1()
         self.ensure_equipment(Items.iron_pickaxe)
-        if (n := self.bank_inventory.get(Items.iron_ore, 0)) > 100:
-            self.craft_items([(Items.iron, n//10)])
+        # if (n := self.bank_inventory.get(Items.iron_ore, 0)) > 100:
+        #     self.craft_items([(Items.iron, n//10)])
         # self.monster_task_loop()
         self.main_skills_loop()
-        self.gather_loop(skill=Resources.copper_rocks.skill)
+        self.gather_loop(resource_forced=Resources.gold_rocks)
         # self.gather_loop(resource=Resources.copper_rocks)
 
 

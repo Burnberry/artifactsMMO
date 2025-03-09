@@ -15,12 +15,38 @@ class Search:
     _monster_data = None
     _effect_data = None
     _map_data = None
-    _event_data = None  # todo this contains content data
+    _event_data = None
+    _tile_content_data = None
     _task_data = None
     _task_reward_data = None
     _achievement_data = None
+    _badge_data = None
 
     """Helper methods"""
+    @staticmethod
+    def autogen():
+        to_generate = [
+            ("item", "code", Search.get_item_data()),
+            ("resource", "code", Search.get_resource_data()),
+            ("npc", "code", Search.get_npc_data()),
+            ("npc_item", "code", Search.get_npc_item_data()),
+            ("monster", "code", Search.get_monster_data()),
+            ("effect", "code", Search.get_effect_data()),
+            ("event", "code", Search.get_event_data()),
+            ("tile_content", "code", Search.get_tile_content_data()),
+            ("task", "code", Search.get_task_data()),
+            ("task_reward", "code", Search.get_task_reward_data()),
+            ("achievement", "code", Search.get_achievement_data()),
+            ("badge", "code", Search.get_badge_data()),
+        ]
+
+        for name, key, data in to_generate:
+            Search.ensure_data_file(name, key)
+            Search.data_autogen(name, data, key)
+
+        tile_data = Search.get_map_data()
+        Search.write_raw_data("tile", tile_data, ['x', 'y'])
+
     @staticmethod
     def file_exists(path):
         try:
@@ -99,12 +125,14 @@ class Search:
     def add_attrs(new_section, name, raw_data):
         sc_name, cc_name = Search.get_names(name)
         for key in raw_data:
-            line = "    %s: '%s'\n" % (key, cc_name)
+            line = "    %s = _%s(%s_data.get('%s', {}))\n" % (key, cc_name, sc_name, key)
             new_section.append(line)
 
     @staticmethod
     def add_set_data(new_section, name, raw_data, code, data_seen):
         values = list(raw_data.values())[0]
+        line = "        self.data = data\n"
+        new_section.append(line)
         for key in values:
             if key in data_seen:
                 continue
@@ -118,7 +146,7 @@ class Search:
         if not Search.file_exists(path):
             # create file
             with open(path, 'w+') as file:
-                template = data_template % (cc_name, sc_name+'s', cc_name, sc_name+'s', code, code)
+                template = data_template % (sc_name, cc_name, sc_name, cc_name, sc_name, code, code, cc_name, cc_name, sc_name, cc_name, sc_name)
                 file.write(template)
                 file.close()
 
@@ -244,6 +272,25 @@ class Search:
         return Search._event_data
 
     @staticmethod
+    def get_tile_content_data():
+        if not Search._tile_content_data:
+            map_data = Search.get_map_data()
+            event_data = Search.get_event_data()
+            content_data = {}
+            for map_vals in map_data:
+                if content := map_vals.get('content', None):
+                    content_data[content['code']] = content
+                    content_data[content['code']]['is_event'] = False
+            for event_vals in event_data:
+                if content := event_vals.get('content', None):
+                    content_data[content['code']] = content
+                    content_data[content['code']]['is_event'] = True
+
+            Search._tile_content_data = content_data
+
+        return Search._tile_content_data
+
+    @staticmethod
     def get_task_data():
         if not Search._task_data:
             Search._task_data = Player.get_all_data("/tasks/list")
@@ -263,3 +310,10 @@ class Search:
             Search._achievement_data = Player.get_all_data("/achievements")
 
         return Search._achievement_data
+
+    @staticmethod
+    def get_badge_data():
+        if not Search._badge_data:
+            Search._badge_data = Player.get_all_data("/badges")
+
+        return Search._badge_data

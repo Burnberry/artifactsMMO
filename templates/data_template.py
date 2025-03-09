@@ -1,11 +1,13 @@
-data_template = """class %s:
-    %s = {}
+data_template = """from data_wrappers_test.data import %s_data
+
+class _%s:
+    %ss = {}
     
     def __init__(self, data):
         self.data = data
         
         self.set_data(data)
-        %s.%s[self.%s] = self
+        _%s.%ss[self.%s] = self
         
     def __repr__(self):
         return self.%s
@@ -20,6 +22,16 @@ data_template = """class %s:
         # _set_data start
         pass
         # _set_data end
+        
+
+class %s:
+    @staticmethod
+    def get(key):
+        return _%s.%ss.get(key)
+    
+    @staticmethod
+    def all():
+        return list(_%s.%ss.values())
         
     # auto-attrs start
     
