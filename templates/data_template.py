@@ -1,5 +1,6 @@
 data_template = """from data_wrappers_test.data import %s_data
 
+
 class _%s:
     %ss = {}
     

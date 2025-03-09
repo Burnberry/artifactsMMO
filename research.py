@@ -41,6 +41,7 @@ class Search:
         ]
 
         for name, key, data in to_generate:
+            print(name, key)
             Search.ensure_data_file(name, key)
             Search.data_autogen(name, data, key)
 
@@ -172,6 +173,8 @@ class Search:
         if len(keys) == 1 and text:
             return json.dumps(new_data, indent=4).replace("null", "None").replace("true", "True").replace("false",
                                                                                                          "False")
+        elif text:
+            return str(new_data)
         else:
             return new_data
 
@@ -286,7 +289,7 @@ class Search:
                     content_data[content['code']] = content
                     content_data[content['code']]['is_event'] = True
 
-            Search._tile_content_data = content_data
+            Search._tile_content_data = list(content_data.values())
 
         return Search._tile_content_data
 
