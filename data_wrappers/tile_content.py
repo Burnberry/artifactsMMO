@@ -1,3 +1,5 @@
+import datetime
+
 from data_wrappers.data.tile_content_data import tile_content_data
 
 
@@ -7,12 +9,20 @@ class _TileContent:
     def __init__(self, data):
         self.data = data
         self.tiles: list[tuple[int, int]] = []
+        self.expiration: datetime.datetime = None
         
         self.set_data(data)
         _TileContent.tile_contents[self.code] = self
         
-    # def __repr__(self):
-    #     return self.code
+    def __repr__(self):
+        return self.code
+
+    def is_active(self, server_time):
+        if not self.is_event:
+            return True
+        if self.tiles and self.expiration < self.expiration.now() - server_time - datetime.timedelta(seconds=5):
+            return True
+        return False
         
     def set_data(self, data):
         self._set_data(data)

@@ -9,6 +9,7 @@ class Player:
     players = set()
     player_lock = threading.Lock()
     bank_inventory = None
+    server_drift = None
 
     def __init__(self, name, role):
         Player.add_player(self)
@@ -20,7 +21,6 @@ class Player:
         self.auto = False
         self.thread = None
         self.has_lock = False
-        self.server_drift = None
         self.last_server_sync = None
         self.action_time = datetime.datetime.now()
         self.sync_server()
@@ -285,13 +285,19 @@ class Player:
         if self.inventory_count >= self.inventory_max_items - 40:
             self.deposit_all()
         while self.inventory_count < self.inventory_max_items:
-            self.gather(resource or self.get_highest_resource(skill))
+            if not self.gather(resource or self.get_highest_resource(skill)):
+                return
 
     def get_highest_resource(self, skill):
         level = self.get_level(skill)
         dx, best_resource = level+100, None
         for _, resource in Resource.resources.items():
+            # if self.name == 'Pebbleboy':
+            #     if resource.skill == skill:
+            #         print(resource, resource.tile_content.tiles, resource.tile_content.is_active(self.get_server_time()))
             if resource.skill == skill and 0 <= level - resource.level < dx:
+                if not resource.tile_content.is_active(self.get_server_time()):
+                    continue
                 dx = level - resource.level
                 best_resource = resource
         return best_resource
@@ -300,8 +306,15 @@ class Player:
         return getattr(self, skill+"_level")
 
     def gather(self, resource):
-        self.move(resource=resource)
-        self.action("action/gathering")
+        if resource.tile_content.is_active(self.get_server_time()):
+            self.move(resource=resource)
+        else:
+            return False
+        if resource.tile_content.is_active(self.get_server_time()):
+            self.action("action/gathering")
+            return True
+        else:
+            return False
 
     def deposit_all(self):
         for item, quantity in self.inventory.items():
@@ -377,7 +390,7 @@ class Player:
             response = requests.get(url, headers=headers)
             time = datetime.datetime.now()
             server_time = to_datetime(response.json()['data']['server_time'])
-            self.server_drift = server_time - time
+            Player.server_drift = server_time - time
             self.last_server_sync = time
 
     @staticmethod
@@ -420,14 +433,20 @@ class Player:
             self.has_lock = False
 
     @staticmethod
-    def get_bank_data_deprecated():
-        data = Player.get_all_data("/my/bank/items")
-        return {Item.get(item['code']): item['quantity'] for item in data}
-
-    @staticmethod
     def update_bank_data():
         data = Player.get_all_data("/my/bank/items")
         Player.set_bank_data(data)
+
+    @staticmethod
+    def update_event_data():
+        event_data = Player.get_all_data("/events/active")
+        for tile_content in TileContent.all():
+            if tile_content.is_event:
+                tile_content.tiles = []
+        for event in event_data:
+            tile = TileContent.get(event['map']['content']['code'])
+            tile.tiles.append((event['map']['x'], event['map']['y']))
+            tile.expiration = to_datetime(event['expiration'])
 
     @staticmethod
     def set_bank_data(data):
@@ -491,10 +510,16 @@ class Player:
         if simple:
             cooldown = self.cooldown
         else:
-            cooldown_time = to_datetime(self.cooldown_expiration) - (datetime.datetime.now() + self.server_drift)
+            cooldown_time = to_datetime(self.cooldown_expiration) - self.get_server_time()
             cooldown = cooldown_time.days*24*60*60 + cooldown_time.seconds + cooldown_time.microseconds/10**6
             cooldown -= 0.30  # request transfer delay
         return cooldown
+
+    @staticmethod
+    def get_server_time():
+        if Player.server_drift:
+            return datetime.datetime.now() + Player.server_drift
+        return datetime.datetime.now()
 
     def set_player_data(self, player_data):
         self._set_player_data(player_data)

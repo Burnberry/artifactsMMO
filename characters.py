@@ -6,23 +6,6 @@ class Noppe(Player):
     def __init__(self):
         super().__init__("Noppe", "fighter")
 
-    def task_loop(self):
-        bank_data = self.get_bank_data_deprecated()
-        while True:
-            if not self.task:
-                break
-                # self.get_task('items')
-            item = self.task.item
-            quantity = self.task_total - self.task_progress
-
-            if bank_data.get(item, 0) >= quantity:
-                self.task_from_bank(item, quantity, bank_data)
-                self.complete_task()
-            else:
-                print("crafting:", quantity, item)
-                self.craft_items([(item, quantity)])
-                bank_data[item] = quantity + bank_data.get(item, 0)
-
     def task_from_bank(self, item, quantity, bank_data):
         while quantity > 0:
             self.deposit_all()
@@ -72,7 +55,7 @@ class Pebbleboy(Player):
         #     self.craft_items([(Items.iron, n//10)])
         # self.monster_task_loop()
         self.main_skills_loop()
-        self.gather_loop(resource_forced=Resource.gold_rocks)
+        self.gather_loop(Resource.gold_rocks.skill)
         # self.gather_loop(resource=Resources.copper_rocks)
 
 

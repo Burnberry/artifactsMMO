@@ -18,7 +18,6 @@ from data_wrappers.tile_grid import Grid
 
 
 def manage_data():
-    print("Connecting data")
     """Map item crafts to items and whether item is material"""
     for item in Item.all():
         if not item.craft:

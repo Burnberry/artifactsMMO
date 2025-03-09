@@ -17,7 +17,7 @@ class _NpcItem:
         _NpcItem.npc_items[self.code] = self
         
     def __repr__(self):
-        return "%s.%s" % (self.npc, self.code)
+        return "%s - %s - buy: %s - sell: %s" % (self.code, self.npc, self.buy_price, self.sell_price)
         
     def set_data(self, data):
         self._set_data(data)
