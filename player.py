@@ -34,26 +34,26 @@ class Player:
 
     def equip_lvl1(self):
         if not self.weapon_slot:
-            self.withdraw(Items.wooden_staff)
-            self.equip(Items.wooden_staff)
+            self.withdraw(Item.wooden_staff)
+            self.equip(Item.wooden_staff)
 
     def equip_lvl5(self):
-        if self.level >= 5 and self.weapon_slot == Items.wooden_staff.code:
-            self.withdraw(Items.water_bow)
-            self.equip(Items.water_bow)
-            self.withdraw(Items.feather_coat)
-            self.equip(Items.feather_coat)
-            self.withdraw(Items.copper_legs_armor)
-            self.equip(Items.copper_legs_armor)
+        if self.level >= 5 and self.weapon_slot == Item.wooden_staff.code:
+            self.withdraw(Item.water_bow)
+            self.equip(Item.water_bow)
+            self.withdraw(Item.feather_coat)
+            self.equip(Item.feather_coat)
+            self.withdraw(Item.copper_legs_armor)
+            self.equip(Item.copper_legs_armor)
 
     def equip_lvl10(self):
-        if self.level >= 10 and self.weapon_slot == Items.water_bow.code and self.bank_inventory.get(Items.iron_sword, 0) > 0:
-            self.withdraw(Items.iron_sword)
-            self.equip(Items.iron_sword)
+        if self.level >= 10 and self.weapon_slot == Item.water_bow.code and self.bank_inventory.get(Item.iron_sword, 0) > 0:
+            self.withdraw(Item.iron_sword)
+            self.equip(Item.iron_sword)
 
     def equip_lvl15(self):
-        if self.level >= 15 and self.weapon_slot != Items.multislimes_sword and self.bank_inventory.get(Items.multislimes_sword, 0) > 0:
-            self.ensure_equipment(Items.multislimes_sword)
+        if self.level >= 15 and self.weapon_slot != Item.multislimes_sword and self.bank_inventory.get(Item.multislimes_sword, 0) > 0:
+            self.ensure_equipment(Item.multislimes_sword)
 
     def fight_loop(self, monster, n):
         while n > 0:
@@ -63,11 +63,11 @@ class Player:
             if self.inventory_max_items-4 <= self.inventory_count:
                 self.deposit_all()
             if self.max_hp - self.hp >= 75:
-                if self.inventory.get(Items.cooked_shrimp, 0) <= 0:
-                    if not self.ensure_items([(Items.cooked_shrimp, 100)]):
+                if self.inventory.get(Item.cooked_shrimp, 0) <= 0:
+                    if not self.ensure_items([(Item.cooked_shrimp, 100)]):
                         return False
                 else:
-                    self.use(Items.cooked_shrimp, 1)
+                    self.use(Item.cooked_shrimp, 1)
             else:
                 self.move(monster.tile_content.tiles)
                 self.fight()
@@ -87,7 +87,7 @@ class Player:
                 max_level = 8
 
             while self.task.level > max_level:
-                if not self.inventory.get(Items.tasks_coin, 0) > 0:
+                if not self.inventory.get(Item.tasks_coin, 0) > 0:
                     return False
                 self.action("action/task/cancel")
                 self.get_task('monsters')
@@ -97,10 +97,10 @@ class Player:
 
     def starter_achievement_loop(self):
         achievements = [
-            (Achievements.amateur_miner, Resources.copper_rocks),
-            (Achievements.amateur_lumberjack, Resources.ash_tree),
-            (Achievements.amateur_fisherman, Resources.gudgeon_fishing_spot),
-            (Achievements.amateur_alchmist, Resources.sunflower_field),
+            (Achievement.amateur_miner, Resource.copper_rocks),
+            (Achievement.amateur_lumberjack, Resource.ash_tree),
+            (Achievement.amateur_fisherman, Resource.gudgeon_fishing_spot),
+            (Achievement.amateur_alchmist, Resource.sunflower_field),
         ]
         for achievement, resource in achievements:
             if achievement.current < achievement.total:
@@ -110,13 +110,13 @@ class Player:
                     self.gather_resource(resource)
 
     def main_skills_loop(self):
-        resources = [Resources.copper_rocks, Resources.ash_tree, Resources.sunflower_field, Resources.gudgeon_fishing_spot]
+        resources = [Resource.copper_rocks, Resource.ash_tree, Resource.sunflower_field, Resource.gudgeon_fishing_spot]
         for resource in resources:
             while self.get_level(resource.skill) < 10:
                 self.gather_resource(resource)
 
-        while self.get_level(Items.cooked_gudgeon.craft.skill) < 10:
-            self.craft_items([(Items.cooked_gudgeon, 100)])
+        while self.get_level(Item.cooked_gudgeon.craft.skill) < 10:
+            self.craft_items([(Item.cooked_gudgeon, 100)])
 
     def craft_skill_batch(self, item, level):
         n = self.inventory_max_items//item.craft.material_count
@@ -211,36 +211,8 @@ class Player:
                 return False
         return True
 
-    def craft_loop(self, item, location, quantity=2**32):
-        # todo improve to handle more recipes + level/location checks
-        bank_data = self.get_bank_data_deprecated()
-        level, skill, materials = item.craft
-        mat_qty = sum([qty for mat, qty in materials])
-        mats = {mat: (bank_data.get(mat, 0), qty) for (mat, qty) in materials}
-        for mat, (stock, qty) in mats.items():
-            quantity = min(quantity, stock//qty)
-
-        while quantity > 0:
-            self.deposit_all()
-            qty_to_craft = min(quantity, self.inventory_max_items//mat_qty)
-            print("crafting: %s, batch: %s, quantity: %s" % (item.name, qty_to_craft, quantity))
-            for mat, (stock, qty) in mats.items():
-                self.withdraw(mat, qty*qty_to_craft)
-            self.move(*location)
-            self.craft(item, qty_to_craft)
-            quantity -= qty_to_craft
-
     def get_available_items(self):
         return self.bank_inventory
-
-    def craft_one(self, item, location, equip=False):
-        level, skill, materials = item.craft
-        for mat, qty in materials:
-            self.withdraw(mat, qty)
-        self.move(*location)
-        self.craft(item)
-        if equip:
-            self.equip(item)
 
     def equip(self, item, quantity=1, slot=None):
         slot = slot or item.type
@@ -306,7 +278,7 @@ class Player:
         skill, resource = None, None
         if isinstance(arg, Resource):
             resource = arg
-        elif isinstance(arg, Item):
+        elif hasattr(arg, 'resource'):
             resource = arg.resource
         else:
             skill = arg
@@ -318,7 +290,7 @@ class Player:
     def get_highest_resource(self, skill):
         level = self.get_level(skill)
         dx, best_resource = level+100, None
-        for _, resource in Resources.resources.items():
+        for _, resource in Resource.resources.items():
             if resource.skill == skill and 0 <= level - resource.level < dx:
                 dx = level - resource.level
                 best_resource = resource
@@ -342,11 +314,10 @@ class Player:
     def move(self, tiles=None, x=None, y=None, resource=None):
         if x is None or y is None:
             x, y = self.x, self.y
-        if resource and resource.tiles:
-            tiles = resource.tiles
+        if resource and resource.tile_content.tiles:
+            tiles = resource.tile_content.tiles
         if tiles:
-            tile = self.get_closest_tile(tiles)
-            x, y = tile.x, tile.y
+            x, y = self.get_closest_tile(tiles)
 
         self._move(x, y)
 
@@ -358,10 +329,10 @@ class Player:
         x, y = self.x, self.y
         closest_tile = None
         distance = 2**31
-        for tile in tiles:
-            d = abs(tile.x - x) + abs(tile.y - y)
+        for tx, ty in tiles:
+            d = abs(tx - x) + abs(ty - y)
             if d < distance:
-                closest_tile, distance = tile, d
+                closest_tile, distance = (tx, ty), d
         return closest_tile
 
     def action(self, path, data=None):
@@ -451,7 +422,7 @@ class Player:
     @staticmethod
     def get_bank_data_deprecated():
         data = Player.get_all_data("/my/bank/items")
-        return {Items.get_item(item['code']): item['quantity'] for item in data}
+        return {Item.get(item['code']): item['quantity'] for item in data}
 
     @staticmethod
     def update_bank_data():
@@ -462,7 +433,7 @@ class Player:
     def set_bank_data(data):
         bank_inventory = {}
         for vals in data:
-            item = Items.get_item(vals['code'])
+            item = Item.get(vals['code'])
             bank_inventory[item] = vals["quantity"]
         Player.bank_inventory = bank_inventory
 
@@ -470,7 +441,7 @@ class Player:
     def update_achievement_data():
         data = Player.get_all_data("/accounts/Burnberry/achievements")
         for vals in data:
-            achievement = Achievements.get_achievement(vals['code'])
+            achievement = Achievement.get(vals['code'])
             achievement.current = vals['current']
             achievement.is_complete = vals['completed_at']
 
@@ -532,11 +503,11 @@ class Player:
         for slot in self.inventory:
             if not slot['code']:
                 continue
-            inventory[Items.get_item(slot['code'])] = slot['quantity']
+            inventory[Item.get(slot['code'])] = slot['quantity']
             self.inventory_count += slot['quantity']
         self.inventory = inventory
         if self.task:
-            self.task = Task.get_task(self.task)
+            self.task = Task.get(self.task)
 
     def print_player_attributes(self, player_data):
         # used for _set_player_data

@@ -17,15 +17,15 @@ class StandardGoal(Goal):
 
     def _perform(self, player):
         if player.role == 'miner':
-            player.gather_batch(Items.copper_ore.skill)
+            player.gather_batch(Item.copper_ore.skill)
         elif player.role == 'forager':
-            player.gather_batch(Items.ash_wood.skill)
+            player.gather_batch(Item.ash_wood.skill)
         elif player.role == 'hunter':
-            player.gather_batch(Items.gudgeon.skill)
+            player.gather_batch(Item.gudgeon.skill)
         elif player.role == 'witch':
-            player.gather_batch(Items.sunflower.skill)
+            player.gather_batch(Item.sunflower.skill)
         elif player.role == 'fighter':
-            player.gather_batch(Items.iron_ore)
+            player.gather_batch(Item.iron_ore)
 
 
 class CraftGoal(Goal):

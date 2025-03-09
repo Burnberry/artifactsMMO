@@ -1,229 +1,289 @@
 tile_content_data = {
     "salmon_fishing_spot": {
         "type": "resource",
-        "code": "salmon_fishing_spot"
+        "code": "salmon_fishing_spot",
+        "is_event": False
     },
     "goblin_wolfrider": {
         "type": "monster",
-        "code": "goblin_wolfrider"
+        "code": "goblin_wolfrider",
+        "is_event": False
     },
     "orc": {
         "type": "monster",
-        "code": "orc"
+        "code": "orc",
+        "is_event": False
     },
     "ogre": {
         "type": "monster",
-        "code": "ogre"
+        "code": "ogre",
+        "is_event": False
     },
     "pig": {
         "type": "monster",
-        "code": "pig"
+        "code": "pig",
+        "is_event": False
     },
     "woodcutting": {
         "type": "workshop",
-        "code": "woodcutting"
+        "code": "woodcutting",
+        "is_event": False
     },
     "gold_rocks": {
         "type": "resource",
-        "code": "gold_rocks"
+        "code": "gold_rocks",
+        "is_event": False
     },
     "cyclops": {
         "type": "monster",
-        "code": "cyclops"
+        "code": "cyclops",
+        "is_event": False
     },
     "blue_slime": {
         "type": "monster",
-        "code": "blue_slime"
+        "code": "blue_slime",
+        "is_event": False
     },
     "yellow_slime": {
         "type": "monster",
-        "code": "yellow_slime"
+        "code": "yellow_slime",
+        "is_event": False
     },
     "red_slime": {
         "type": "monster",
-        "code": "red_slime"
+        "code": "red_slime",
+        "is_event": False
     },
     "green_slime": {
         "type": "monster",
-        "code": "green_slime"
+        "code": "green_slime",
+        "is_event": False
     },
     "goblin": {
         "type": "monster",
-        "code": "goblin"
+        "code": "goblin",
+        "is_event": False
     },
     "wolf": {
         "type": "monster",
-        "code": "wolf"
+        "code": "wolf",
+        "is_event": False
     },
     "ash_tree": {
         "type": "resource",
-        "code": "ash_tree"
+        "code": "ash_tree",
+        "is_event": False
     },
     "copper_rocks": {
         "type": "resource",
-        "code": "copper_rocks"
+        "code": "copper_rocks",
+        "is_event": False
     },
     "chicken": {
         "type": "monster",
-        "code": "chicken"
+        "code": "chicken",
+        "is_event": False
     },
     "cooking": {
         "type": "workshop",
-        "code": "cooking"
+        "code": "cooking",
+        "is_event": False
     },
     "weaponcrafting": {
         "type": "workshop",
-        "code": "weaponcrafting"
+        "code": "weaponcrafting",
+        "is_event": False
     },
     "gearcrafting": {
         "type": "workshop",
-        "code": "gearcrafting"
+        "code": "gearcrafting",
+        "is_event": False
     },
     "bank": {
         "type": "bank",
-        "code": "bank"
+        "code": "bank",
+        "is_event": False
     },
     "grand_exchange": {
         "type": "grand_exchange",
-        "code": "grand_exchange"
+        "code": "grand_exchange",
+        "is_event": False
     },
     "owlbear": {
         "type": "monster",
-        "code": "owlbear"
+        "code": "owlbear",
+        "is_event": False
     },
     "cow": {
         "type": "monster",
-        "code": "cow"
+        "code": "cow",
+        "is_event": False
     },
     "monsters": {
         "type": "tasks_master",
-        "code": "monsters"
+        "code": "monsters",
+        "is_event": False
     },
     "sunflower_field": {
         "type": "resource",
-        "code": "sunflower_field"
+        "code": "sunflower_field",
+        "is_event": False
+    },
+    "nomadic_merchant": {
+        "type": "npc",
+        "code": "nomadic_merchant",
+        "is_event": True
     },
     "gudgeon_fishing_spot": {
         "type": "resource",
-        "code": "gudgeon_fishing_spot"
+        "code": "gudgeon_fishing_spot",
+        "is_event": False
     },
     "shrimp_fishing_spot": {
         "type": "resource",
-        "code": "shrimp_fishing_spot"
+        "code": "shrimp_fishing_spot",
+        "is_event": False
     },
     "jewelrycrafting": {
         "type": "workshop",
-        "code": "jewelrycrafting"
+        "code": "jewelrycrafting",
+        "is_event": False
     },
     "alchemy": {
         "type": "workshop",
-        "code": "alchemy"
+        "code": "alchemy",
+        "is_event": False
     },
     "mushmush": {
         "type": "monster",
-        "code": "mushmush"
+        "code": "mushmush",
+        "is_event": False
     },
     "flying_serpent": {
         "type": "monster",
-        "code": "flying_serpent"
+        "code": "flying_serpent",
+        "is_event": False
     },
     "mining": {
         "type": "workshop",
-        "code": "mining"
+        "code": "mining",
+        "is_event": False
     },
     "birch_tree": {
         "type": "resource",
-        "code": "birch_tree"
+        "code": "birch_tree",
+        "is_event": False
     },
     "coal_rocks": {
         "type": "resource",
-        "code": "coal_rocks"
+        "code": "coal_rocks",
+        "is_event": False
     },
     "spruce_tree": {
         "type": "resource",
-        "code": "spruce_tree"
+        "code": "spruce_tree",
+        "is_event": False
     },
     "skeleton": {
         "type": "monster",
-        "code": "skeleton"
+        "code": "skeleton",
+        "is_event": False
     },
     "dead_tree": {
         "type": "resource",
-        "code": "dead_tree"
+        "code": "dead_tree",
+        "is_event": False
     },
     "vampire": {
         "type": "monster",
-        "code": "vampire"
+        "code": "vampire",
+        "is_event": False
     },
     "iron_rocks": {
         "type": "resource",
-        "code": "iron_rocks"
+        "code": "iron_rocks",
+        "is_event": False
     },
     "death_knight": {
         "type": "monster",
-        "code": "death_knight"
+        "code": "death_knight",
+        "is_event": False
     },
     "lich": {
         "type": "monster",
-        "code": "lich"
+        "code": "lich",
+        "is_event": False
     },
     "bat": {
         "type": "monster",
-        "code": "bat"
+        "code": "bat",
+        "is_event": False
     },
     "highwayman": {
         "type": "monster",
-        "code": "highwayman"
+        "code": "highwayman",
+        "is_event": False
     },
     "glowstem": {
         "type": "resource",
-        "code": "glowstem"
+        "code": "glowstem",
+        "is_event": False
     },
     "spider": {
         "type": "monster",
-        "code": "spider"
+        "code": "spider",
+        "is_event": False
     },
     "imp": {
         "type": "monster",
-        "code": "imp"
+        "code": "imp",
+        "is_event": False
     },
     "maple_tree": {
         "type": "resource",
-        "code": "maple_tree"
+        "code": "maple_tree",
+        "is_event": False
     },
     "bass_fishing_spot": {
         "type": "resource",
-        "code": "bass_fishing_spot"
+        "code": "bass_fishing_spot",
+        "is_event": False
     },
     "trout_fishing_spot": {
         "type": "resource",
-        "code": "trout_fishing_spot"
+        "code": "trout_fishing_spot",
+        "is_event": False
     },
     "mithril_rocks": {
         "type": "resource",
-        "code": "mithril_rocks"
+        "code": "mithril_rocks",
+        "is_event": False
     },
     "hellhound": {
         "type": "monster",
-        "code": "hellhound"
+        "code": "hellhound",
+        "is_event": False
     },
     "cultist_acolyte": {
         "type": "monster",
-        "code": "cultist_acolyte"
+        "code": "cultist_acolyte",
+        "is_event": False
     },
     "items": {
         "type": "tasks_master",
-        "code": "items"
+        "code": "items",
+        "is_event": False
     },
     "rune_vendor": {
         "type": "npc",
-        "code": "rune_vendor"
+        "code": "rune_vendor",
+        "is_event": False
     },
     "nettle": {
         "type": "resource",
-        "code": "nettle"
+        "code": "nettle",
+        "is_event": False
     },
-    # event content
     "demon": {
         "type": "monster",
         "code": "demon",
@@ -277,11 +337,6 @@ tile_content_data = {
     "herbal_merchant": {
         "type": "npc",
         "code": "herbal_merchant",
-        "is_event": True
-    },
-    "nomadic_merchant": {
-        "type": "npc",
-        "code": "nomadic_merchant",
         "is_event": True
     },
     "gemstone_merchant": {

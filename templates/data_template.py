@@ -1,4 +1,4 @@
-data_template = """from data_wrappers_test.data import %s_data
+data_template = """from data_wrappers.data.%s_data import %s_data
 
 
 class _%s:
@@ -6,7 +6,6 @@ class _%s:
     
     def __init__(self, data):
         self.data = data
-        
         self.set_data(data)
         _%s.%ss[self.%s] = self
         
@@ -25,13 +24,13 @@ class _%s:
         # _set_data end
         
 
-class %s:
+class %s(_%s):
     @staticmethod
-    def get(key):
+    def get(key) -> _%s:
         return _%s.%ss.get(key)
     
     @staticmethod
-    def all():
+    def all() -> list[_%s]:
         return list(_%s.%ss.values())
         
     # auto-attrs start

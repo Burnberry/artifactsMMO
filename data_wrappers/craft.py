@@ -1,13 +1,14 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+    from item import _Item
 
 
 class Craft:
     crafts = {}
 
     def __init__(self, data, item, materials):
-        from data_wrappers.item import Item
-        self.item: Item = item
-        self.materials: list[(Item, int)] = materials
+        self.item: _Item = item
+        self.materials: list[(_Item, int)] = materials
         self.material_count = None
 
         self.skill = data.get('skill', None)

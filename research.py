@@ -3,7 +3,7 @@ from player import Player
 from templates.data_template import data_template
 
 
-_path = "data_wrappers_test/"
+_path = "data_wrappers/"
 _tab = "    "
 
 
@@ -132,8 +132,6 @@ class Search:
     @staticmethod
     def add_set_data(new_section, name, raw_data, code, data_seen):
         values = list(raw_data.values())[0]
-        line = "        self.data = data\n"
-        new_section.append(line)
         for key in values:
             if key in data_seen:
                 continue
@@ -147,7 +145,7 @@ class Search:
         if not Search.file_exists(path):
             # create file
             with open(path, 'w+') as file:
-                template = data_template % (sc_name, cc_name, sc_name, cc_name, sc_name, code, code, cc_name, cc_name, sc_name, cc_name, sc_name)
+                template = data_template % (sc_name, sc_name, cc_name, sc_name, cc_name, sc_name, code, code, cc_name, cc_name, cc_name, cc_name, sc_name, cc_name, cc_name, sc_name)
                 file.write(template)
                 file.close()
 

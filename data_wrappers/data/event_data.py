@@ -21,7 +21,8 @@ event_data = {
         "rate": 1000,
         "content": {
             "type": "monster",
-            "code": "demon"
+            "code": "demon",
+            "is_event": True
         }
     },
     "bandit_camp": {
@@ -50,7 +51,8 @@ event_data = {
         "rate": 1000,
         "content": {
             "type": "monster",
-            "code": "bandit_lizard"
+            "code": "bandit_lizard",
+            "is_event": True
         }
     },
     "cult_of_darkness": {
@@ -67,7 +69,8 @@ event_data = {
         "rate": 2000,
         "content": {
             "type": "monster",
-            "code": "cultist_emperor"
+            "code": "cultist_emperor",
+            "is_event": True
         }
     },
     "strange_apparition": {
@@ -92,7 +95,8 @@ event_data = {
         "rate": 1500,
         "content": {
             "type": "resource",
-            "code": "strange_rocks"
+            "code": "strange_rocks",
+            "is_event": True
         }
     },
     "magic_apparition": {
@@ -117,7 +121,8 @@ event_data = {
         "rate": 1500,
         "content": {
             "type": "resource",
-            "code": "magic_tree"
+            "code": "magic_tree",
+            "is_event": True
         }
     },
     "rosenblood": {
@@ -134,7 +139,8 @@ event_data = {
         "rate": 2000,
         "content": {
             "type": "monster",
-            "code": "rosenblood"
+            "code": "rosenblood",
+            "is_event": True
         }
     },
     "portal_efreet_sultan": {
@@ -159,7 +165,8 @@ event_data = {
         "rate": 2000,
         "content": {
             "type": "monster",
-            "code": "efreet_sultan"
+            "code": "efreet_sultan",
+            "is_event": True
         }
     },
     "cursed_tree": {
@@ -184,7 +191,8 @@ event_data = {
         "rate": 2000,
         "content": {
             "type": "monster",
-            "code": "cursed_tree"
+            "code": "cursed_tree",
+            "is_event": True
         }
     },
     "fish_merchant": {
@@ -201,7 +209,8 @@ event_data = {
         "rate": 1500,
         "content": {
             "type": "npc",
-            "code": "fish_merchant"
+            "code": "fish_merchant",
+            "is_event": True
         }
     },
     "timber_merchant": {
@@ -218,7 +227,8 @@ event_data = {
         "rate": 1500,
         "content": {
             "type": "npc",
-            "code": "timber_merchant"
+            "code": "timber_merchant",
+            "is_event": True
         }
     },
     "herbal_merchant": {
@@ -235,7 +245,8 @@ event_data = {
         "rate": 1500,
         "content": {
             "type": "npc",
-            "code": "herbal_merchant"
+            "code": "herbal_merchant",
+            "is_event": True
         }
     },
     "nomadic_merchant": {
@@ -252,7 +263,8 @@ event_data = {
         "rate": 1500,
         "content": {
             "type": "npc",
-            "code": "nomadic_merchant"
+            "code": "nomadic_merchant",
+            "is_event": True
         }
     },
     "gemstone_merchant": {
@@ -269,7 +281,8 @@ event_data = {
         "rate": 1500,
         "content": {
             "type": "npc",
-            "code": "gemstone_merchant"
+            "code": "gemstone_merchant",
+            "is_event": True
         }
     }
 }

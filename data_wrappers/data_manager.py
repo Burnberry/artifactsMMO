@@ -1,78 +1,72 @@
 from typing import Optional
 
-from data_wrappers.Craft import Craft
-from data_wrappers.Drops import Drops, Drop
-from data_wrappers.items import Items, Item
-from data_wrappers.monsters import Monsters, Monster
-from data_wrappers.resources import Resources, Resource
-from data_wrappers.npcs import Npcs, Npc
-from data_wrappers.tile_grid import Grid, Tile, TileContent
-from data_wrappers.drop import Drop
-from data_wrappers.tasks import Tasks, Task
-from data_wrappers.npc_item import NpcItem
+from data_wrappers.achievement import Achievement, _Achievement
+from data_wrappers.badge import Badge, _Badge
+from data_wrappers.craft import Craft
+from data_wrappers.drop import Drops, Drop
+from data_wrappers.effect import Effect, _Effect
+from data_wrappers.event import Event, _Event
+from data_wrappers.item import Item, _Item
+from data_wrappers.monster import Monster, _Monster
+from data_wrappers.npc import Npc, _Npc
+from data_wrappers.npc_item import NpcItem, _NpcItem
+from data_wrappers.resource import Resource, _Resource
+from data_wrappers.task import Task, _Task
 from data_wrappers.data.task_reward_data import task_reward_data
-from data_wrappers.events import Events, Event
-from data_wrappers.effects import Effects, Effect
-from data_wrappers.achievements import Achievement, Achievements
+from data_wrappers.tile_content import TileContent, _TileContent
+from data_wrappers.tile_grid import Grid
 
 
 def manage_data():
+    print("Connecting data")
     """Map item crafts to items and whether item is material"""
-    for code, item in Items.items.items():
+    for item in Item.all():
         if not item.craft:
             continue
-        materials = [(Items.get_item(mat['code']), mat['quantity']) for mat in item.craft['items']]
+        materials = [(Item.get(mat['code']), mat['quantity']) for mat in item.data['craft']['items']]
         item.craft = Craft(item.craft, item, materials)
         item.craft.update_material_count()
         for material, _ in materials:
             material.is_material = True
 
     """Add task reward data as drop to task coin"""
-    Items.tasks_coin.drops = Drops([vals for vals in task_reward_data.values()], Items.tasks_coin)
+    Item.tasks_coin.drops = Drops(task_reward_data, Item.tasks_coin)
 
     """Map drops to items"""
     for drop in Drop.drops:
-        drop.item = Items.get_item(drop.code)
+        drop.item = Item.get(drop.code)
 
     """Set main item on resources"""
-    for _, resource in Resources.resources.items():
+    for resource in Resource.all():
         resource.set_main_item()
 
     """Create tile contents and map tiles lists"""
-    for key, content in Grid.tile_contents.items():
+    for content in Grid.all():
         if content.type == 'monster':
-            content.monster = Monsters.monsters.get(content.code, None)
+            content.monster = Monster.get(content.code)
             content.monster.tile_content = content
         elif content.type == 'resource':
-            content.resource = Resources.resources.get(content.code, None)
+            content.resource = Resource.get(content.code)
             content.resource.tile_content = content
         elif content.type == 'npc':
-            content.npc = Npcs.npcs.get(content.code, None)
+            content.npc = Npc.get(content.code)
             content.npc.tile_content = content
 
     """Set tiles in tile_content & resource"""
-    for _, tile in Grid.tiles.items():
-        if not tile.content:
-            continue
-        code = tile.content['code']
-        content = TileContent.get_tile_content(code)
-        content.tiles.append(tile)
-        if content.resource:
-            content.resource.tiles.append(tile)
+    Grid.set_main_tiles()
 
     """Map items and monsters on Task"""
-    for code, task in Tasks.tasks.items():
+    for task in Task.all():
         if task.type == 'items':
-            task.item = Items.get_item(code)
+            task.item = Item.get(task.code)
         elif task.type == 'monsters':
-            task.monster = Monsters.get_monster(code)
+            task.monster = Monster.get(task.code)
 
     """Map npc items to npc and items"""
-    for npc_item in NpcItem.npc_items.values():
-        npc_item: NpcItem
-        npc_item.item = Items.get_item(npc_item.code)
+    for npc_item in NpcItem.all():
+        npc_item.item = Item.get(npc_item.code)
         npc_item.item.npc_item = npc_item
-        npc_item.npc = Npcs.npcs.get(npc_item.npc)
+        npc_item.npc = Npc.get(npc_item.npc)
         npc_item.npc.items.append(npc_item)
 
 

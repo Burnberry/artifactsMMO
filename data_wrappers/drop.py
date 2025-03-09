@@ -1,10 +1,13 @@
+from typing import Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+    from item import _Item
+
+
 class Drop:
-    # todo should be a list of drops and linked to source
     drops = set()
 
     def __init__(self, vals):
-        from data_wrappers.item import Item
-        self.item: Item = None
+        self.item: _Item = None
         self.code = vals.get('code', None)
         self.rate = vals.get('rate', None)
         self.min_quantity = vals.get('min_quantity', None)
@@ -14,3 +17,13 @@ class Drop:
 
     def __repr__(self):
         return self.code
+
+
+class Drops:
+    drops = set()
+
+    def __init__(self, vals, source):
+        self.source = source
+        self.min_coins = vals.get('min_coins', 0)
+        self.max_coins = vals.get('max_coins', 0)
+        self.drops: list[Drop] = [Drop(drop_vals) for drop_vals in vals.get('drops', [])]
