@@ -24,7 +24,7 @@ class Goal:
         print(player, "performing:", self)
 
     def perform(self, player):
-        self.log(player)
+        player.set_goal(self)
         self._perform(player)
 
     def _perform(self, player):
@@ -71,7 +71,6 @@ class GoalManager:
     @staticmethod
     def perform(player):
         goal = GoalManager.find_goal(player)
-        print(goal)
         if goal:
             goal.perform(player)
             return True

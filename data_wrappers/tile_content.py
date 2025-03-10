@@ -20,7 +20,7 @@ class _TileContent:
     def is_active(self, server_time):
         if not self.is_event:
             return True
-        if self.tiles and self.expiration < self.expiration.now() - server_time - datetime.timedelta(seconds=5):
+        if self.tiles and self.expiration and self.expiration < server_time - datetime.timedelta(seconds=5):
             return True
         return False
         

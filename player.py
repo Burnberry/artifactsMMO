@@ -2,6 +2,7 @@ import requests, threading, datetime
 from time import sleep
 
 from data_wrappers.data_manager import *
+from goal_base import Goal
 from helpers import *
 
 
@@ -23,10 +24,16 @@ class Player:
         self.has_lock = False
         self.last_server_sync = None
         self.action_time = datetime.datetime.now()
+        self.goal: Goal = None
         self.sync_server()
 
     def __repr__(self):
         return self.name
+
+    def set_goal(self, goal):
+        if goal is not self.goal:
+            self.goal = goal
+            print('%s:' % self.name, self.goal)
 
     # Scripting
     def script_main(self):
@@ -134,6 +141,12 @@ class Player:
             n = min(n, self.get_available_qty(item)//qty)
         return n
 
+    def on_hand(self, items):
+        for item, qty in items:
+            if self.inventory.get(item, 0) < qty:
+                return False
+        return True
+
     def get_available_qty(self, item):
         return self.bank_inventory.get(item, 0)
 
@@ -229,6 +242,10 @@ class Player:
     def fight(self):
         self.action("action/fight")
 
+    def sell_npc_item(self, npc_item: NpcItem, quantity=1):
+        self.move(npc_item.npc.tile_content.tiles)
+        self.action("action/npc/sell", {'code': npc_item.item.code, 'quantity': quantity})
+
     def withdraw(self, item, quantity=1):
         self.move(Grid.bank.tiles)
         self.action("action/bank/withdraw", {'code': item.code, 'quantity': quantity})
@@ -282,7 +299,7 @@ class Player:
             resource = arg.resource
         else:
             skill = arg
-        if self.inventory_count >= self.inventory_max_items - 40:
+        if self.inventory_count >= self.inventory_max_items:
             self.deposit_all()
         while self.inventory_count < self.inventory_max_items:
             if not self.gather(resource or self.get_highest_resource(skill)):
