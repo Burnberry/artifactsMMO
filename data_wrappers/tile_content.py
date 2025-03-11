@@ -17,10 +17,10 @@ class _TileContent:
     def __repr__(self):
         return self.code
 
-    def is_active(self, server_time):
+    def is_active(self, server_time, cooldown=0):
         if not self.is_event:
             return True
-        if self.tiles and self.expiration and self.expiration < server_time - datetime.timedelta(seconds=5):
+        if self.tiles and self.expiration and self.expiration > server_time - datetime.timedelta(seconds=5+cooldown):
             return True
         return False
         

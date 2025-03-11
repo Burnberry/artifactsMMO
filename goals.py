@@ -140,6 +140,72 @@ class CraftLevelGoal(LevelGoal):
                 player.recycle(self.item)
 
 
+class StockGoal(Goal):
+    def __init__(self, item, trigger_quantity, stock_quantity=None, **kwargs):
+        super().__init__(**kwargs)
+        self.item = item
+        self.trigger_quantity = trigger_quantity
+        self.stock_quantity = stock_quantity or trigger_quantity
+
+    def __repr__(self):
+        return "Stocking %s to %s" % (self.item, self.stock_quantity)
+
+    def _could_perform(self, player) -> bool:
+        trigger = player.get_available_qty(self.item) < self.trigger_quantity
+        busy = player.goal is self and player.get_available_qty(self.item) < self.stock_quantity
+        return trigger or busy
+
+    def requirements_met(self) -> bool:
+        return True
+
+
+class StockCraftGoal(StockGoal):
+    def __init__(self, item, trigger_quantity, stock_quantity=None, **kwargs):
+        super().__init__(item, trigger_quantity, stock_quantity, **kwargs)
+        self.level = item.craft.level
+        self.skill = item.craft.skill
+
+    def _could_perform(self, player) -> bool:
+        res = super()._could_perform(player)
+        can_craft = player.get_level(self.skill) >= self.level
+        has_mats = player.item_sets_available(self.item.craft.materials) > 0
+        return res and can_craft and has_mats
+
+    def _perform(self, player):
+        qty_to_craft = self.stock_quantity - player.get_available_qty(self.item)
+        qty_to_craft = min(qty_to_craft, player.item_sets_available(self.item.craft.materials))
+        player.craft_items([(self.item, qty_to_craft)])
+
+
+class StockFightGoal(StockGoal):
+    def __init__(self, item, monster, trigger_quantity, stock_quantity=None, use_potions=False, **kwargs):
+        super().__init__(item, trigger_quantity, stock_quantity, role="fighter", **kwargs)
+        self.monster = monster
+        self.use_potions = use_potions
+
+    def _could_perform(self, player: Player) -> bool:
+        res = super()._could_perform(player)
+        has_healing = player.get_available_qty(Item.cooked_shrimp) > 50
+        return res and has_healing
+
+    def requirements_met(self) -> bool:
+        return True
+
+    def _perform(self, player: Player):
+        if not player.utility1_slot or player.utility1_slot_quantity < 10:
+            n = 100-(player.utility1_slot_quantity or 0)
+            player.ensure_items([(Item.small_health_potion, n)])
+            return player.equip(Item.small_health_potion, n, "utility1")
+        if not player.inventory.get(Item.cooked_shrimp, 0) > 0:
+            return player.ensure_items([(Item.cooked_shrimp, 50)])
+        if player.max_hp - player.hp >= 150:
+            return player.use(Item.cooked_shrimp)
+        if player.inventory_max_items <= player.inventory_count:
+            return player.deposit_all()
+        player.move(self.monster.tile_content.tiles)
+        player.fight()
+
+
 # class to review
 class CraftGoal(Goal):
     def __init__(self, items: list[tuple[Item, int]], **kwargs):
@@ -166,25 +232,3 @@ class CraftGoal(Goal):
     def _perform(self, player):
         print(player.name, "performing craft:", self.items)
         player.craft_items(self.items)
-
-
-# class to review
-class LevelCraftGoal(Goal):
-    def __init__(self, item, level, player):
-        super().__init__()
-        self.item = item
-        self.level = level
-        self.player = player
-
-    def _could_perform(self, player) -> bool:
-        return player.get_level(self.item.craft.skill) >= self.item.craft.level
-
-    def requirements_met(self) -> bool:
-        return 0 < self.player.item_sets_available(self.item.craft.materials)
-
-    def _perform(self, player):
-        player.craft_skill_batch(self.item, self.level)
-        print(player.name, self.item.craft.skill, player.get_level(self.item.craft.skill))
-
-    def is_needed(self):
-        return self.player.get_level(self.item.craft.skill) < self.level

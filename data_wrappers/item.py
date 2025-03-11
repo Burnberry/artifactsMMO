@@ -1,11 +1,11 @@
 from data_wrappers.data.item_data import item_data
 from typing import Optional, TYPE_CHECKING
-
 if TYPE_CHECKING:
     from resource import _Resource
     from npc_item import _NpcItem
     from craft import Craft
     from drop import Drop, Drops
+    from effect import _Effect
 
 
 class _Item:
@@ -19,6 +19,7 @@ class _Item:
         self.processed_item: _Item = None
         self.npc_item: _NpcItem = None
         self.drops: Drops = None
+        self.effects: dict[_Effect: int] = {}
         
         self.set_data(data)
         _Item.items[self.code] = self
@@ -40,7 +41,7 @@ class _Item:
         self.type = data.get('type', None)
         self.subtype = data.get('subtype', None)
         self.description = data.get('description', None)
-        self.effects = data.get('effects', None)
+        self.effects = {}   # custom
         self.craft = data.get('craft', None)
         self.tradeable = data.get('tradeable', None)
         # _set_data end

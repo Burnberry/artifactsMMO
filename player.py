@@ -148,7 +148,7 @@ class Player:
         return True
 
     def get_available_qty(self, item):
-        return self.bank_inventory.get(item, 0)
+        return self.bank_inventory.get(item, 0) + self.inventory.get(item, 0)
 
     def craft_skill_loop(self, item, level):
         skill = item.craft.skill
@@ -383,19 +383,33 @@ class Player:
         cooldown = self.get_cooldown_time()
         if cooldown > 0:
             sleep(cooldown)
-        for i in range(3):
+        for i in range(5):
             self.response = requests.post(self.base_path + path, json=data, headers=headers)
             if self.response.status_code != 200:
                 print(self.name, path, data, self.response.json())
                 sleep(0.01 + 0.1*i**2)
             else:
                 break
+            if i == 3:
+                self._check_status_loop()
+                print("status OK")
         # if self.name == "Noppe":
         #     self.log_time(path)
         if self.response.status_code != 200:
             return
 
         self.lock_acquire()
+
+    def _check_status_loop(self):
+        print("Checking status loop")
+        while True:
+            sleep(60)
+            try:
+                response = self.get_request("")
+                if response.status_code == 200:
+                    return
+            except Exception as e:
+                print(e)
 
     def log_time(self, msg):
         time = datetime.datetime.now()
@@ -418,6 +432,8 @@ class Player:
 
     @staticmethod
     def get_all_data(path):
+        if path and path[0] == '/':
+            path = path[1:]
         data = []
         page, pages = 0, 1
         while page < pages:

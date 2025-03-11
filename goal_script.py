@@ -3,10 +3,13 @@ from goals import *
 
 
 def create_temp_goals(players):
-    # CraftLevelGoal(Item.feather_coat, 10, "Noppe", True, priority=6)
-    CraftLevelGoal(Item.health_potion, 40, "Hekate", False, priority=6)
-    CraftLevelGoal(Item.cooked_trout, 30, "Hekate", False, priority=7)
-    CraftLevelGoal(Item.cooked_bass, 40, "Hekate", False, priority=7)
+    StockCraftGoal(Item.iron, 15, 40, role="miner", priority=7)
+    StockCraftGoal(Item.spruce_plank, 15, 40, role="forager", priority=7)
+    StockFightGoal(Item.feather, Monster.chicken, 20, 60, priority=5)
+    # StockFightGoal(Item.mushroom, Monster.mushmush, 6, use_potions=True, priority=5)
+    CraftLevelGoal(Item.iron_sword, 20, "Noppe", True, priority=6)
+    CraftLevelGoal(Item.iron_boots, 20, "Noppe", True, priority=7)
+    return
 
 
 def create_main_goals(players):

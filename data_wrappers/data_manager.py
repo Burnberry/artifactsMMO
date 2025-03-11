@@ -68,5 +68,10 @@ def manage_data():
         npc_item.npc = Npc.get(npc_item.npc)
         npc_item.npc.items.append(npc_item)
 
+    """Set effects on items"""
+    for item in Item.all():
+        for effect in item.data.get('effects', []):
+            item.effects[Effect.get(effect['code'])] = effect['value']
+
 
 manage_data()
