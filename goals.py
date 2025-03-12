@@ -30,6 +30,64 @@ class StandardGoal(Goal):
             player.gather_batch(Item.iron_ore)
 
 
+class TaskGoal(Goal):
+    def __init__(self, **kwargs):
+        super().__init__(role="fighter", **kwargs)
+
+    def __repr__(self):
+        return "Doing Monster Tasks"
+
+    def requirements_met(self) -> bool:
+        return True
+
+    def _could_perform(self, player) -> bool:
+        if not player.task:
+            return player.get_available_qty(Item.tasks_coin) > 0
+        return self.has_healing(player)
+
+    def _perform(self, player):
+        if not player.task:
+            return player.get_task("monsters")
+        if self.should_reroll(player):
+            player.ensure_items([(Item.tasks_coin, 1)], 5)
+            return player.reroll_task()
+        if player.task_total <= player.task_progress:
+            return player.complete_task()
+        if player.inventory_max_items <= player.inventory_count:
+            return player.deposit_all()
+        self.ensure_healing(player)
+        player.move(player.task.monster.tile_content.tiles)
+        self.heal(player)
+        player.fight()
+
+    def has_healing(self, player: Player):
+        has_food = player.get_available_qty(Item.cooked_shrimp) > 0
+        has_potions = player.task.level <= 8 or player.get_available_qty(Item.small_health_potion) > 10
+        return has_food and has_potions
+
+    def ensure_healing(self, player):
+        if not player.task.level <= 8 and (not player.utility1_slot or player.utility1_slot_quantity < 10):
+            n = 100 - (player.utility1_slot_quantity or 0)
+            player.ensure_items([(Item.small_health_potion, n)])
+            player.equip(Item.small_health_potion, n, "utility1")
+        if not player.inventory.get(Item.cooked_shrimp, 0) > 0:
+            player.ensure_items([(Item.cooked_shrimp, 50)])
+
+    def heal(self, player: Player):
+        n = 150
+        if player.task.level > 8:
+            n = 0
+        while player.max_hp > player.hp + n:
+            player.use(Item.cooked_shrimp)
+
+    def should_reroll(self, player):
+        if player.task.level > 15:
+            return True
+        if player.task.level >= 8 and player.task_total > 250:
+            return True
+        return False
+
+
 class GatherGoal(Goal):
     def __init__(self, resource, **kwargs):
         super().__init__(**kwargs)

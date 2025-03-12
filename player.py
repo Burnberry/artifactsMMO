@@ -276,6 +276,15 @@ class Player:
             self.get_task(self.task.type)
             self.action("action/task/complete")
 
+    def cancel_task(self):
+        self.move(TileContent.monsters.tiles)
+        self.action("action/task/cancel")
+
+    def reroll_task(self):
+        self.ensure_items([(Item.tasks_coin, 1)])
+        self.cancel_task()
+        self.get_task("monsters")
+
     def gather_resource(self, resource):
         if self.inventory_count >= self.inventory_max_items:
             self.deposit_all()
