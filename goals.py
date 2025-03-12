@@ -83,6 +83,7 @@ class TaskGoal(Goal):
         if player.task.level > 8:
             n = 0
         while player.max_hp > player.hp + n:
+            self.ensure_healing(player)
             player.use(Item.cooked_shrimp)
 
     def should_reroll(self, player):
