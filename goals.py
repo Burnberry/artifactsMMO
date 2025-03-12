@@ -25,7 +25,7 @@ class StandardGoal(Goal):
         elif player.role == 'hunter':
             player.gather_batch(Resource.gudgeon_fishing_spot.skill)
         elif player.role == 'witch':
-            player.gather_batch(Resource.sunflower_field.skill)
+            player.gather_batch(Resource.gudgeon_fishing_spot.skill)
         elif player.role == 'fighter':
             player.gather_batch(Item.iron_ore)
 
@@ -65,11 +65,16 @@ class TaskGoal(Goal):
         has_potions = player.task.level <= 8 or player.get_available_qty(Item.small_health_potion) > 10
         return has_food and has_potions
 
-    def ensure_healing(self, player):
-        if not player.task.level <= 8 and (not player.utility1_slot or player.utility1_slot_quantity < 10):
+    def ensure_healing(self, player: Player):
+        if not player.task.level <= 15 and (not player.utility1_slot or player.utility1_slot_quantity < 10):
             n = 100 - (player.utility1_slot_quantity or 0)
             player.ensure_items([(Item.small_health_potion, n)])
             player.equip(Item.small_health_potion, n, "utility1")
+        else:
+            if n := player.utility1_slot_quantity:
+                player.deposit_all()
+                player.unequip("utility1", n)
+
         if not player.inventory.get(Item.cooked_shrimp, 0) > 0:
             player.ensure_items([(Item.cooked_shrimp, 50)])
 
@@ -81,7 +86,7 @@ class TaskGoal(Goal):
             player.use(Item.cooked_shrimp)
 
     def should_reroll(self, player):
-        if player.task.level > 15:
+        if player.task.level > 18:
             return True
         if player.task.level >= 8 and player.task_total > 250:
             return True
@@ -262,6 +267,25 @@ class StockFightGoal(StockGoal):
             return player.deposit_all()
         player.move(self.monster.tile_content.tiles)
         player.fight()
+
+
+class StockGatherGoal(StockGoal):
+    def __init__(self, item, resource, trigger_quantity, stock_quantity=None, use_potions=False, **kwargs):
+        super().__init__(item, trigger_quantity, stock_quantity, **kwargs)
+        self.resource = resource
+
+    def _could_perform(self, player: Player) -> bool:
+        res = super()._could_perform(player)
+        has_level = player.get_level(self.resource.skill) >= self.resource.level
+        return res and has_level
+
+    def requirements_met(self) -> bool:
+        return True
+
+    def _perform(self, player: Player):
+        if player.inventory_max_items <= player.inventory_count:
+            return player.deposit_all()
+        return player.gather_resource(self.resource)
 
 
 # class to review

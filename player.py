@@ -229,7 +229,7 @@ class Player:
 
     def equip(self, item, quantity=1, slot=None):
         slot = slot or item.type
-        if getattr(self, "%s_slot" % slot):
+        if hasattr(self, "%s_slot" % slot) and getattr(self, "%s_slot" % slot) and item is not Item.small_health_potion:
             self.unequip(slot)
         self.action("action/equip", {'code': item.code, 'slot': slot, 'quantity': quantity})
 
@@ -380,11 +380,12 @@ class Player:
         self._action(path, data)
 
         if 'application/json' in self.response.headers.get('Content-Type', ''):
-            data = self.response.json()['data']
-            if 'character' in data:
-                self.set_player_data(data['character'])
-            if 'bank' in data:
-                self.set_bank_data(data['bank'])
+            if 'data' in self.response.json():
+                data = self.response.json()['data']
+                if 'character' in data:
+                    self.set_player_data(data['character'])
+                if 'bank' in data:
+                    self.set_bank_data(data['bank'])
 
     def _action(self, path, data=None):
         self.lock_release()
@@ -394,7 +395,7 @@ class Player:
             sleep(cooldown)
         for i in range(5):
             self.response = requests.post(self.base_path + path, json=data, headers=headers)
-            if self.response.status_code != 200:
+            if self.response.status_code not in [200, 499]:
                 print(self.name, path, data, self.response.json())
                 sleep(0.01 + 0.1*i**2)
             else:
@@ -405,7 +406,10 @@ class Player:
         # if self.name == "Noppe":
         #     self.log_time(path)
         if self.response.status_code != 200:
-            return
+            if self.goal and hasattr(self.goal, "resource") and self.goal.resource.tile_content.is_event:
+                self.goal.resource.tile_content.tiles = []
+            else:
+                return
 
         self.lock_acquire()
 
