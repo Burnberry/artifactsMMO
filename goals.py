@@ -256,14 +256,14 @@ class StockFightGoal(StockGoal):
         return True
 
     def _perform(self, player: Player):
-        if not player.utility1_slot or player.utility1_slot_quantity < 10:
-            n = 100-(player.utility1_slot_quantity or 0)
-            player.ensure_items([(Item.small_health_potion, n)])
-            return player.equip(Item.small_health_potion, n, "utility1")
-        if not player.inventory.get(Item.cooked_shrimp, 0) > 0:
-            return player.ensure_items([(Item.cooked_shrimp, 50)])
-        if player.max_hp - player.hp >= 150:
-            return player.use(Item.cooked_shrimp)
+        # if not player.utility1_slot or player.utility1_slot_quantity < 10:
+        #     n = 100-(player.utility1_slot_quantity or 0)
+        #     player.ensure_items([(Item.small_health_potion, n)])
+        #     return player.equip(Item.small_health_potion, n, "utility1")
+        if not player.inventory.get(Item.cooked_trout, 0) > 0:
+            return player.ensure_items([(Item.cooked_trout, 70)])
+        if player.max_hp - player.hp >= 225:
+            return player.use(Item.cooked_trout)
         if player.inventory_max_items <= player.inventory_count:
             return player.deposit_all()
         player.move(self.monster.tile_content.tiles)

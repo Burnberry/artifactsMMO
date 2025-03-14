@@ -250,6 +250,20 @@ class Player:
         self.move(Grid.bank.tiles)
         self.action("action/bank/withdraw", {'code': item.code, 'quantity': quantity})
 
+    def deposit_gold(self, gold):
+        self.move(Grid.bank.tiles)
+        self.action("action/bank/deposit/gold", data={"quantity": gold})
+
+    def withdraw_gold(self, gold):
+        if gold is None:
+            gold = self.gold
+        self.move(Grid.bank.tiles)
+        self.action("action/bank/withdraw/gold", data={"quantity": gold})
+
+    def buy_expansion(self):
+        self.move(Grid.bank.tiles)
+        self.action("action/bank/buy_expansion")
+
     def recycle(self, item, quantity=1):
         self.action("action/recycling", {'code': item.code, 'quantity': quantity})
 
@@ -396,7 +410,7 @@ class Player:
         for i in range(5):
             self.response = requests.post(self.base_path + path, json=data, headers=headers)
             if self.response.status_code not in [200, 499]:
-                print(self.name, path, data, self.response.json())
+                print(self.name, path, data, self.response.content)
                 sleep(0.01 + 0.1*i**2)
             else:
                 break
