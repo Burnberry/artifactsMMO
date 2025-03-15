@@ -7,12 +7,15 @@ class Noppe(Player):
         super().__init__("Noppe", "fighter")
 
     def script_main(self):
+        # self.withdraw(Item.air_and_water_amulet)
+        # self.withdraw(Item.water_ring, 2)
+        # self.equip(Item.air_and_water_amulet)
+        # self.equip(Item.water_ring, slot="ring1")
+        # self.equip(Item.water_ring, slot="ring2")
         # self.withdraw(Item.steel_battleaxe)
         # self.withdraw(Item.fire_and_earth_amulet)
         # self.equip(Item.steel_battleaxe)
         # self.equip(Item.fire_and_earth_amulet)
-        self.unequip(slot="ring2")
-        self.equip(Item.earth_ring, slot="ring2")
         GoalManager.goal_loop(self)
         self.gather_loop(resource_forced=Resource.iron_rocks)
 
