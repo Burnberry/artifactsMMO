@@ -55,13 +55,26 @@ class TileContent(_TileContent):
 
     @staticmethod
     def update_event_data(data):
+        active_events = set()
+        for tile_content in TileContent.all():
+            if tile_content.is_event and tile_content.tiles:
+                active_events.add(tile_content)
         for tile_content in TileContent.all():
             if tile_content.is_event:
                 tile_content.tiles = []
+        current_events = set()
         for event in data:
             tile = TileContent.get(event['map']['content']['code'])
             tile.tiles.append((event['map']['x'], event['map']['y']))
             tile.expiration = to_datetime(event['expiration'])
+            current_events.add(tile)
+
+        for event in active_events:
+            if event not in current_events:
+                print("%s ended" % event)
+        for event in current_events:
+            if event not in active_events:
+                print("New event %s!" % event)
         
     # auto-attrs start
     salmon_fishing_spot = _TileContent(tile_content_data.get('salmon_fishing_spot', {}))
