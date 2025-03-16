@@ -33,7 +33,8 @@ class Player:
     def set_goal(self, goal):
         if goal is not self.goal:
             self.goal = goal
-            print('%s:' % self.name, self.goal)
+            if goal:
+                print('%s: %s' % (self.name, self.goal))
 
     # Scripting
     def script_main(self):

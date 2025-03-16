@@ -29,3 +29,16 @@ def get_nearest_tiles(tiles, x, y):
         if (td := abs(x - tx) + abs(y - ty)) < d:
             d, tile = td, (tx, ty)
     return tile
+
+
+def tuple_convert(lst, values):
+    """Convenience list converter, e.g. will transform:
+    [item, (item, qty), item] -> [(item, qty), (item, qty), (item, qty)]
+    for given default vals"""
+    new_lst = []
+    for obj in lst:
+        if not isinstance(obj, tuple):
+            obj = (obj,)
+        new_lst.append(obj + values[len(obj)-1:])
+    return new_lst
+
