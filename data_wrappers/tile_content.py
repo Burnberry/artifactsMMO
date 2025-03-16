@@ -1,6 +1,7 @@
 import datetime
 
 from data_wrappers.data.tile_content_data import tile_content_data
+from helpers import get_nearest_tiles, to_datetime
 
 
 class _TileContent:
@@ -23,6 +24,11 @@ class _TileContent:
         if self.tiles and self.expiration and self.expiration > server_time + datetime.timedelta(seconds=5+cooldown):
             return True
         return False
+
+    def get_nearest_tile(self, x, y):
+        if not self.tiles:
+            raise Exception("Tile content %s does not have any active tiles" % self)
+        return get_nearest_tiles(self.tiles, x, y)
         
     def set_data(self, data):
         self._set_data(data)
@@ -46,6 +52,16 @@ class TileContent(_TileContent):
     @staticmethod
     def all() -> list[_TileContent]:
         return list(_TileContent.tile_contents.values())
+
+    @staticmethod
+    def update_event_data(data):
+        for tile_content in TileContent.all():
+            if tile_content.is_event:
+                tile_content.tiles = []
+        for event in data:
+            tile = TileContent.get(event['map']['content']['code'])
+            tile.tiles.append((event['map']['x'], event['map']['y']))
+            tile.expiration = to_datetime(event['expiration'])
         
     # auto-attrs start
     salmon_fishing_spot = _TileContent(tile_content_data.get('salmon_fishing_spot', {}))

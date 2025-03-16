@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 class _Item:
     items = {}
+    item_effect = {}
     
     def __init__(self, data):
         self.data = data
@@ -55,6 +56,10 @@ class Item(_Item):
     @staticmethod
     def all() -> list[_Item]:
         return list(_Item.items.values())
+
+    @staticmethod
+    def get_effect(effect) -> list[_Item]:
+        return _Item.item_effect.get(effect, [])
         
     # auto-attrs start
     cooked_gudgeon = _Item(item_data.get('cooked_gudgeon', {}))

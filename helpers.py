@@ -19,3 +19,13 @@ def dict_to_attributes(data, dict_name="data"):
 
 def to_datetime(time):
     return datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%fZ')
+
+
+def get_nearest_tiles(tiles, x, y):
+    tx, ty = tiles[0]
+    tile = (tx, ty)
+    d = abs(x - tx) + abs(y - ty)
+    for tx, ty in tiles:
+        if (td := abs(x - tx) + abs(y - ty)) < d:
+            d, tile = td, (tx, ty)
+    return tile

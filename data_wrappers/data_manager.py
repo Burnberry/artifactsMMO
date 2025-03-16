@@ -15,6 +15,9 @@ from data_wrappers.task import Task, _Task
 from data_wrappers.data.task_reward_data import task_reward_data
 from data_wrappers.tile_content import TileContent, _TileContent
 from data_wrappers.tile_grid import Grid
+from data_wrappers.equipment import Equipment, EquipmentSlot
+from data_wrappers.bank import Bank
+from data_wrappers.skill import Skill
 
 
 def manage_data():
@@ -69,9 +72,11 @@ def manage_data():
         npc_item.npc.items.append(npc_item)
 
     """Set effects on items"""
+    Item.item_effect = {effect: [] for effect in Effect.all()}
     for item in Item.all():
         for effect in item.data.get('effects', []):
             item.effects[Effect.get(effect['code'])] = effect['value']
+            Item.item_effect[Effect.get(effect['code'])].append(item)
 
 
 manage_data()

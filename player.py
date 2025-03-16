@@ -345,7 +345,7 @@ class Player:
     def get_level(self, skill):
         return getattr(self, skill+"_level")
 
-    def gather(self, resource):
+    def gather(self, resource: Resource):
         if resource.tile_content.is_active(self.get_server_time()):
             self.move(resource=resource)
         else:

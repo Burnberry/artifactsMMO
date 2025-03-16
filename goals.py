@@ -262,7 +262,7 @@ class StockFightGoal(StockGoal):
         #     return player.equip(Item.small_health_potion, n, "utility1")
         if not player.inventory.get(Item.cooked_trout, 0) > 0:
             return player.ensure_items([(Item.cooked_trout, 70)])
-        if player.max_hp - player.hp >= 225:
+        if player.max_hp - player.hp >= 100:
             return player.use(Item.cooked_trout)
         if player.inventory_max_items <= player.inventory_count:
             return player.deposit_all()
