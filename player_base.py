@@ -255,10 +255,12 @@ class _PlayerAPI(_Player):
         self.move(TileContent.bank.tiles)
         self._buy_expansion()
 
-    def npc_buy(self, item: Item, quantity=1):
+    def npc_buy(self, item: NpcItem, quantity=1):
+        self.move(item.npc.tile_content.tiles)
         return self._npc_buy(item.code, quantity)
 
     def npc_sell(self, item: Item, quantity=1):
+        self.move(item.npc_item.npc.tile_content.tiles)
         return self._npc_sell(item.code, quantity)
 
     def recycling(self, item: Item, quantity=1):

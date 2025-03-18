@@ -244,9 +244,9 @@ class Player(_PlayerAPI):
         items = tuple_convert(items, (1, None))
         items_to_ensure = []
         for item, qty, slot in items:
-            # qty -= self.equipment.get_item_qty(item)
-            # if qty >= 0:
-            items_to_ensure.append((item, qty))
+            qty -= self.equipment.get_item_qty(item)
+            if qty >= 0:
+                items_to_ensure.append((item, qty))
         self.ensure_items(items_to_ensure)
         for item, qty, slot in items:
             self.equip(item, slot, qty)
@@ -340,7 +340,7 @@ class Player(_PlayerAPI):
             if Effect.heal in item.effects:
                 return True
         items_to_get = []
-        for item in [Item.cooked_gudgeon, Item.cooked_salmon, Item.cooked_bass, Item.cooked_trout, Item.cooked_shrimp]:
+        for item in [Item.cooked_gudgeon, Item.cheese, Item.apple_pie, Item.cooked_salmon, Item.cooked_bass, Item.cooked_trout, Item.cooked_shrimp]:
             if item.level > self.level:
                 continue
             qty_to_get = min(n, self.stock_available(item))
@@ -349,6 +349,15 @@ class Player(_PlayerAPI):
             if n <= 0:
                 break
         self.ensure_items(items_to_get)
+
+    def ensure_utilities(self, item, qty, slot=1):
+        if slot == 1:
+            equipment_slot = self.equipment.utility1_slot
+        else:
+            equipment_slot = self.equipment.utility2_slot
+        if equipment_slot and equipment_slot.item is item and equipment_slot.quantity >= qty:
+            return True
+        self.fetch_and_equip([(item, 100, slot)])
 
     def craft_items(self, items: list[tuple[Item, int]]):
         required_materials = self.get_required_materials(items)
@@ -371,23 +380,28 @@ class Player(_PlayerAPI):
             return True
         return self.gather(resource)
 
-    def perform_craft(self, item, recycle=False):
+    def perform_craft(self, item, recycle=False, batch=False):
+        n = self.item_sets_available(item.craft.materials)
+        n = min(n, self.inventory_max_items // item.craft.material_count)
         if not self.items_on_hand(item.craft.materials):
-            n = self.item_sets_available(item.craft.materials)
-            n = min(n, self.inventory_max_items//item.craft.material_count)
             items = [(mat, n*qty) for mat, qty in item.craft.materials]
             self.ensure_items(items)
         if not self.move(TileContent.get(item.craft.skill).tiles):
             return True
-        self.craft_items([(item, 1)])
+        if not batch:
+            n = 1
+        self.craft_items([(item, n)])
         if recycle:
-            self.recycling(item)
+            self.recycling(item, n)
 
-    def perform_fight(self, monster):
+    def perform_fight(self, monster, utility=None):
         if self.inventory_space <= 0:
             return self.deposit_all()
 
-        while self.hp_missing >= 20:
+        if utility and not self.ensure_utilities(utility, 15):
+            return True
+
+        while self.hp_missing >= 160:
             self.ensure_healing(70)
             return self.heal(allow_overflow=True)
 
@@ -396,12 +410,42 @@ class Player(_PlayerAPI):
 
         return self.fight()
 
+    def perform_monster_task(self, max_level):
+        if not self.task:
+            self.task_new(TileContent.monsters)
+            # temp
+            if self.name == "Noppe" and self.task.level <= max_level:
+                self.temp_equip_best_armor(self.task.monster)
+        if self.name == "Rubius":
+            if self.equipment.weapon_slot.item is not Item.multislimes_sword:
+                self.fetch_and_equip([Item.multislimes_sword])
+        if self.task.level > max_level:
+            return self.task_cancel()
+        if self.task_total > self.task_progress:
+            return self.perform_fight(self.task.monster)
+        self.task_complete(TileContent.monsters)
+
     # temp code
+    def temp_equip_best_armor(self, monster):
+        res = min([monster.res_water, monster.res_fire, monster.res_earth])
+        if monster.res_earth == res:
+            return self.temp_equip_earth()
+        elif monster.res_fire == res:
+            return self.temp_equip_fire()
+        else:
+            return self.temp_equip_water()
+
     def temp_equip_water(self):
-        self.fetch_and_equip([Item.air_and_water_amulet, Item.battlestaff, (Item.water_ring, 1, 1), (Item.water_ring, 1, 2)])
+        self.fetch_and_equip([Item.steel_armor, Item.steel_legs_armor, Item.dreadful_amulet, Item.battlestaff, (Item.water_ring, 1, 1), (Item.water_ring, 1, 2)])
 
     def temp_equip_earth(self):
-        self.fetch_and_equip([Item.fire_and_earth_amulet, Item.steel_battleaxe, (Item.earth_ring, 1, 1), (Item.earth_ring, 1, 2)])
+        self.fetch_and_equip([Item.steel_armor, Item.steel_legs_armor, Item.dreadful_amulet, Item.wooden_club, (Item.earth_ring, 1, 1), (Item.earth_ring, 1, 2)])
+
+    def temp_equip_fire(self):
+        self.fetch_and_equip([(Item.skull_staff, 1), (Item.skeleton_armor, 1), (Item.skeleton_pants, 1), (Item.skull_amulet, 1), (Item.fire_ring, 1, 1), (Item.fire_ring, 1, 2)])
+
+    def temp_equip_rubius(self):
+        self.fetch_and_equip([(Item.iron_sword, 1), (Item.forest_ring, 1, 1), (Item.forest_ring, 1, 2), (Item.fire_and_earth_amulet, 1), Item.adventurer_vest])
 
 
 def create_players():

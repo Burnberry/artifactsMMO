@@ -72,7 +72,7 @@ class GoalManager:
 
 
 class StockGoal(Goal):
-    def __init__(self, item, trigger_qty, replenish_qty=None, monster=None, **kwargs):
+    def __init__(self, item, trigger_qty, replenish_qty=None, monster=None, utility=None, **kwargs):
         super().__init__(**kwargs)
         self.item = item
         self.trigger_qyt = trigger_qty
@@ -81,6 +81,7 @@ class StockGoal(Goal):
         self.resource = item.resource
         self.craft = item.craft
         self.monster = monster
+        self.utility: Item = utility
 
     def __repr__(self):
         if self.resource:
@@ -89,35 +90,28 @@ class StockGoal(Goal):
             return "Monster %s for %s %s->%s" % (self.monster, self.item, self.current_stock, self.replenish_qty)
         return "Stocking %s %s->%s" % (self.item, self.current_stock, self.replenish_qty)
 
-    def _can_trigger(self, player):
+    def _can_trigger(self, player: 'Player'):
         self.current_stock = player.stock_total(self.item)
         if player.goal is self and self.current_stock < self.replenish_qty:
             return True
         triggered = self.current_stock < self.trigger_qyt
-        if self.resource:
-            return triggered and self.resource.tile_content.is_active(player.get_server_time(), player.get_cooldown_time())
         return triggered
 
     def _can_perform(self, player):
         if self.resource:
-            return self.resource.level <= player.get_level(self.resource.skill)
+            return self.resource.level <= player.get_level(self.resource.skill) and self.resource.tile_content.is_active(player.get_server_time(), player.get_cooldown_time())
+        if self.craft:
+            return self.craft.level <= player.get_level(self.craft.skill) and player.items_available(self.craft.materials)
         return True
 
-    def _perform(self, player):
+    def _perform(self, player: 'Player'):
         if self.resource:
             return player.perform_gather(self.resource)
         if self.monster:
-            return player.perform_fight(self.monster)
+            return player.perform_fight(self.monster, self.utility)
+        if self.craft:
+            return player.perform_craft(self.item, batch=True)
         return
-
-    def _perform_gather(self, player):
-        if not player.equip_best_tool(self.resource.skill):
-            return True
-        if player.inventory_space <= 0:
-            return player.deposit_all()
-        if not player.move(self.resource.tile_content.tiles):
-            return True
-        return player.gather(self.resource)
 
 
 class LevelGoal(Goal):
@@ -163,3 +157,48 @@ class LevelGoal(Goal):
 
     def can_perform_craft(self, player):
         return self.craft_item.craft.level <= player.get_level(self.skill)
+
+
+class TaskGoal(Goal):
+    def __init__(self, max_level, **kwargs):
+        super().__init__(**kwargs)
+        self.max_level = max_level
+
+    def __repr__(self):
+        return "Doing tasks lvl%s" % self.max_level
+
+    def _can_trigger(self, player):
+        return True
+
+    def _can_perform(self, player):
+        return True
+
+    def _perform(self, player: 'Player'):
+        player.perform_monster_task(self.max_level)
+
+
+class SellGoal(Goal):
+    def __init__(self, items, items_to_keep=None, **kwargs):
+        super().__init__(**kwargs)
+        self.items = items
+        self.items_to_keep = items_to_keep or {}
+
+    def __repr__(self):
+        return "selling %s" % self.items
+
+    def _can_trigger(self, player: 'Player'):
+        for item in self.items:
+            if item.npc_item.npc.tile_content.is_active(player.get_server_time(), player.get_cooldown_time()) and player.stock_available(item) > self.items_to_keep.get(item, 0):
+                return True
+        return False
+
+    def _perform(self, player: 'Player'):
+        items_to_ensure = []
+        for item in self.items:
+            if item.npc_item.npc.tile_content.is_active(player.get_server_time(), player.get_cooldown_time()) and player.stock_available(item) > self.items_to_keep.get(item, 0):
+                items_to_ensure.append((item, player.stock_available(item) - self.items_to_keep.get(item, 0)))
+        player.ensure_items(items_to_ensure)
+        for item, n in items_to_ensure:
+            player.npc_sell(item)
+
+

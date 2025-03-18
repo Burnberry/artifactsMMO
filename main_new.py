@@ -8,6 +8,8 @@ from server_sync_new import start_sync_loop
 setup_players()
 create_gather_goal()
 create_level_goals()
+create_task_goals()
+create_misc_goals()
 
 
 sync_thread = threading.Thread(target=start_sync_loop)
