@@ -495,12 +495,12 @@ class Player:
 
     @staticmethod
     def update_bank_data():
-        data = Player.get_all_data("/my/bank/items")
+        data = Player.get_all_data("my/bank/items")
         Player.set_bank_data(data)
 
     @staticmethod
     def update_event_data():
-        event_data = Player.get_all_data("/events/active")
+        event_data = Player.get_all_data("events/active")
         for tile_content in TileContent.all():
             if tile_content.is_event:
                 tile_content.tiles = []
@@ -519,7 +519,7 @@ class Player:
 
     @staticmethod
     def update_achievement_data():
-        data = Player.get_all_data("/accounts/Burnberry/achievements")
+        data = Player.get_all_data("accounts/Burnberry/achievements")
         for vals in data:
             achievement = Achievement.get(vals['code'])
             achievement.current = vals['current']

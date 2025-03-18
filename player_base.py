@@ -416,7 +416,7 @@ class _PlayerAPI(_Player):
 
     @staticmethod
     def get_bank_item_data():
-        data = _PlayerAPI.get_all_data("/my/bank/items")
+        data = _PlayerAPI.get_all_data("my/bank/items")
         _Player._set_bank_data(data)
         return data
 
@@ -429,10 +429,10 @@ class _PlayerAPI(_Player):
     def get_achievement_data(account=None):
         if not account:
             account = config.get('account')
-        return _PlayerAPI.get_all_data("/accounts/%s/achievements" % account)
+        return _PlayerAPI.get_all_data("accounts/%s/achievements" % account)
 
     @staticmethod
     def get_active_event_data():
-        data = _PlayerAPI.get_all_data("/events/active")
+        data = _PlayerAPI.get_all_data("events/active")
         TileContent.update_event_data(data)
         return data
