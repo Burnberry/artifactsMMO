@@ -244,7 +244,7 @@ class Player(_PlayerAPI):
         items = tuple_convert(items, (1, None))
         items_to_ensure = []
         for item, qty, slot in items:
-            qty -= self.equipment.get_item_qty(item)
+            qty -= self.equipment.get_item_qty(item, slot)
             if qty >= 0:
                 items_to_ensure.append((item, qty))
         self.ensure_items(items_to_ensure)
@@ -401,7 +401,10 @@ class Player(_PlayerAPI):
         if utility and not self.ensure_utilities(utility, 15):
             return True
 
-        while self.hp_missing >= 160:
+        hp_trigger = 160
+        if self.name == "Rubius" and monster.level >= 15:
+            hp_trigger = 50
+        while self.hp_missing >= hp_trigger:
             self.ensure_healing(70)
             return self.heal(allow_overflow=True)
 

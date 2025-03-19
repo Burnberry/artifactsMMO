@@ -68,12 +68,22 @@ class Equipment:
     def __repr__(self):
         return "Equipment"
 
-    def get_all_slots(self):
-        slots = []
-        for slot in [self.weapon_slot, self.rune_slot, self.shield_slot, self.helmet_slot, self.body_armor_slot, self.leg_armor_slot, self.boots_slot, self.ring1_slot, self.ring2_slot, self.amulet_slot, self.artifact1_slot, self.artifact2_slot, self.artifact3_slot, self.utility1_slot, self.utility2_slot, self.bag_slot]:
+    def get_all_slots(self, slot=None):
+        if slot is None:
+            slots = [self.weapon_slot, self.rune_slot, self.shield_slot, self.helmet_slot, self.body_armor_slot, self.leg_armor_slot, self.boots_slot, self.ring1_slot, self.ring2_slot, self.amulet_slot, self.artifact1_slot, self.artifact2_slot, self.artifact3_slot, self.utility1_slot, self.utility2_slot, self.bag_slot]
+        elif slot == 1:
+            slots = [self.utility1_slot, self.ring1_slot, self.artifact1_slot]
+        elif slot == 2:
+            slots = [self.utility2_slot, self.ring2_slot, self.artifact2_slot]
+        elif slot == 3:
+            slots = [self.artifact3_slot]
+        else:
+            slots = []
+        slots2 = []
+        for slot in slots:
             if slot:
-                slots.append(slot)
-        return slots
+                slots2.append(slot)
+        return slots2
 
     def get_slot_names(self):
         return ["weapon_slot", "rune_slot", "shield_slot", "helmet_slot", "body_armor_slot", "leg_armor_slot", "boots_slot", "ring1_slot", "ring2_slot", "amulet_slot", "artifact1_slot", "artifact2_slot", "artifact3_slot", "utility1_slot", "utility2_slot", "bag_slot"]
@@ -81,9 +91,9 @@ class Equipment:
     def get_slot_types(self):
         return "weapon", "rune", "shield", "helmet", "body_armor", "leg_armor", "boots", "ring", "amulet", "artifact", "utility", "bag"
 
-    def get_item_qty(self, item):
+    def get_item_qty(self, item, slot=None):
         qty = 0
-        for slot in self.get_all_slots():
+        for slot in self.get_all_slots(slot):
             if slot.item is item:
                 qty += slot.quantity
         return qty

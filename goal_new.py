@@ -130,7 +130,7 @@ class LevelGoal(Goal):
         return "Leveling %s to lvl%s" % (self.skill, self.level)
 
     def _can_trigger(self, player: 'Player'):
-        if self.level >= player.get_level(self.skill):
+        if self.level <= player.get_level(self.skill):
             return False
         if self.craft_item:
             return self.can_trigger_craft(player)
@@ -152,7 +152,7 @@ class LevelGoal(Goal):
             n = 1
         else:
             n = self.batch
-        items = [(self.craft_item, n)]
+        items = [(item, qty*n) for item, qty in self.craft_item.craft.materials]
         return player.items_available(items)
 
     def can_perform_craft(self, player):

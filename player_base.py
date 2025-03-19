@@ -264,6 +264,8 @@ class _PlayerAPI(_Player):
         return self._npc_sell(item.code, quantity)
 
     def recycling(self, item: Item, quantity=1):
+        if quantity <= 0:
+            return
         return self._recycling(item.code, quantity)
 
     def task_complete(self, tile_content=None):

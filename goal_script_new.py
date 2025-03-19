@@ -2,13 +2,16 @@ from goal_new import *
 
 
 def create_level_goals():
-    pass
     # crafting
-    # LevelGoal(Skill.jewelrycrafting, 20, Item.water_ring, recycle=True, use_level_gear=True, priority=7)
+    # LevelGoal(Skill.gearcrafting, 25, Item.steel_legs_armor, recycle=True, use_level_gear=True, role="fighter", priority=5)
+    # LevelGoal(Skill.gearcrafting, 25, Item.skeleton_pants, recycle=False, use_level_gear=True, role="fighter", priority=6)
+    # LevelGoal(Skill.jewelrycrafting, 25, Item.skull_amulet, recycle=True, use_level_gear=True, role="fighter", priority=5)
+    # LevelGoal(Skill.jewelrycrafting, 25, Item.steel_ring, recycle=True, use_level_gear=True, role="fighter", priority=6)
+    return
 
 
 def create_task_goals():
-    TaskGoal(9, role="forager", priority=7)
+    TaskGoal(15, role="forager", priority=7)
     TaskGoal(19, role="fighter", priority=7)
 
 
@@ -20,10 +23,12 @@ def create_misc_goals():
 
 def create_gather_goal():
     # fight goal
-    # StockGoal(Item.skeleton_bone, 500, monster=Monster.skeleton, role="fighter", priority=7)
+    StockGoal(Item.skeleton_bone, 500, monster=Monster.skeleton, role="fighter", priority=7)
     # StockGoal(Item.spider_leg, 2, monster=Monster.spider, role="fighter", utility=Item.small_health_potion, priority=7)
 
     # craft goals
+    StockGoal(Item.steel, 500, role="miner", priority=7)
+    StockGoal(Item.gold, 500, role="miner", priority=7)
     StockGoal(Item.cooked_shrimp, 500, role="witch", priority=6)
     StockGoal(Item.cooked_trout, 1000, role="witch", priority=6)
     StockGoal(Item.cooked_bass, 1000, role="witch", priority=6)
